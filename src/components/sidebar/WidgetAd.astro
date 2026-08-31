@@ -11,13 +11,14 @@ const adsenseConfig = pluginsConfig?.adsense || {};
 const isAdsenseEnabled = adsenseConfig.enabled && adsenseConfig.publisherId;
 ---
 
-<div class="widget-ad-container bg-slate-50 border border-slate-200 dark:bg-slate-900/60 dark:border-slate-800 rounded-4 p-3 text-center overflow-hidden">
-  <div class="text-uppercase text-slate-400 font-bold mb-2 tracking-wider" style="font-size: 10px;">
+<div class="widget-ad-wrapper text-center my-2">
+  <!-- LABEL "Publicidade" SEM BORDAS OU FUNDO -->
+  <span class="d-block text-slate-400 dark:text-slate-500 font-medium text-xs tracking-wider mb-2 text-center" style="font-size: 11px;">
     Publicidade
-  </div>
+  </span>
 
   {isAdsenseEnabled ? (
-    <div class="adsense-slot min-h-[250px] flex items-center justify-center">
+    <div class="adsense-slot min-h-[250px] w-full flex items-center justify-center">
       <ins
         class="adsbygoogle"
         style="display:block"
@@ -31,27 +32,27 @@ const isAdsenseEnabled = adsenseConfig.enabled && adsenseConfig.publisherId;
       </script>
     </div>
   ) : (
-    <!-- FALLBACK DE BANNER DE PUBLICIDADE / PARCEIRO TECEXTREME -->
+    <!-- BANNER DE PUBLICIDADE SEM BORDA EXTERNA (CONFORME O LAYOUT DE REFERÊNCIA) -->
     <div
-      class="ad-banner-placeholder rounded-3 p-4 d-flex flex-column align-items-center justify-content-center text-center position-relative overflow-hidden"
-      style="min-height: 220px; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border: 1px dashed rgba(112, 237, 237, 0.3);"
+      class="ad-banner-fallback rounded-3 p-4 d-flex flex-column align-items-center justify-content-center text-center text-decoration-none shadow-xs mx-auto"
+      style="min-height: 250px; max-width: 300px; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);"
     >
       <div class="mb-2 opacity-80">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#70EDED" stroke-width="1.8">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#70EDED" stroke-width="1.8">
           <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
           <line x1="8" y1="21" x2="16" y2="21" />
           <line x1="12" y1="17" x2="12" y2="21" />
         </svg>
       </div>
-      <span class="text-white font-extrabold text-xs mb-1" style="font-family: var(--font-heading);">
+      <span class="text-white font-extrabold text-sm mb-1" style="font-family: var(--font-heading);">
         Espaço Publicitário
       </span>
-      <span class="text-slate-400 text-xs mb-3" style="font-size: 11px;">
+      <span class="text-slate-400 text-xs mb-3" style="font-size: 11.5px;">
         Anuncie sua marca no TecExtreme
       </span>
       <a
         href="/contato"
-        class="btn btn-sm rounded-pill font-bold px-3 py-1 text-xs text-white"
+        class="btn btn-sm rounded-pill font-bold px-3.5 py-1.5 text-xs text-white"
         style="background-color: var(--walker-accent, #2222D3); font-size: 11px;"
       >
         Anunciar Aqui
