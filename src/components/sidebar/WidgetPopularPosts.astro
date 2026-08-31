@@ -18,14 +18,14 @@ interface Props {
 
 const { posts = [], title = 'Mais lidas' } = Astro.props;
 
-// Algoritmo determinístico/aleatório para selecionar 5 posts variados para o usuário
+// Algoritmo para selecionar 5 posts aleatórios/populares
 const shuffledPosts = [...posts].sort(() => 0.5 - Math.random());
 const displayPosts = shuffledPosts.slice(0, 5);
 ---
 
 <div
-  class="widget-mais-lidas rounded-4 p-4 shadow-md text-white position-relative overflow-hidden"
-  style="background: linear-gradient(135deg, #1E2BEE 0%, #2222D3 60%, #1515A3 100%);"
+  class="widget-mais-lidas rounded-4 p-4 shadow-md text-white position-relative overflow-hidden w-100"
+  style="background-color: #295FF2;"
 >
   <!-- CABEÇALHO COM ÍCONE DE MEDALHA / ESTRELA E TÍTULO -->
   <div class="d-flex align-items-center gap-2.5 mb-4 pb-3 border-bottom border-white-20">
@@ -53,7 +53,7 @@ const displayPosts = shuffledPosts.slice(0, 5);
         <!-- BADGE NUMÉRICO CIRCULAR CIANO (1 a 5) -->
         <span
           class="badge-rank rounded-circle d-flex align-items-center justify-content-center fw-extrabold flex-shrink-0 shadow-sm"
-          style="width: 26px; height: 26px; background-color: #70EDED; color: #0B0F19; font-size: 13px;"
+          style="width: 26px; height: 26px; background-color: #5CE1E6; color: #0F172A; font-size: 13px;"
         >
           {index + 1}
         </span>
@@ -75,7 +75,7 @@ const displayPosts = shuffledPosts.slice(0, 5);
   <a
     href="/blog"
     class="btn-mais-populares btn w-100 rounded-3 fw-bold text-center text-decoration-none shadow-sm py-2.5 d-block"
-    style="background-color: #ffffff; color: #2222D3; font-size: 0.9rem; transition: all 0.2s ease;"
+    style="background-color: #ffffff; color: #295FF2; font-size: 0.9rem; transition: all 0.2s ease;"
   >
     Mais notícias populares
   </a>
@@ -90,12 +90,12 @@ const displayPosts = shuffledPosts.slice(0, 5);
     padding-bottom: 0.75rem;
   }
   .popular-item-link:hover .popular-post-title {
-    color: #70EDED !important;
+    color: #5CE1E6 !important;
     text-decoration: underline;
   }
   .btn-mais-populares:hover {
     background-color: #f8fafc !important;
-    color: #1010a0 !important;
+    color: #1a4cd2 !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   }
