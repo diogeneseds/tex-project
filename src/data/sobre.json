@@ -1,0 +1,18 @@
+{
+  "seo": {
+    "title": "Sobre o TecExtreme",
+    "description": "Conheça a história e missão do TecExtreme - descomplicando a tecnologia ao extremo.",
+    "image": "/logo-tecextreme.svg"
+  },
+  "hero": {
+    "title": "Sobre o TecExtreme",
+    "image": "",
+    "desc": "O TecExtreme nasceu com o objetivo de descomplicar o universo da tecnologia, levando guias práticos, análises profundas e novidades em Inteligência Artificial, Hardware, Jogos e Software para todos."
+  },
+  "content": {
+    "missionTitle": "Nossa Missão",
+    "missionText": "Elevar o seu conhecimento tecnológico ao extremo através de conteúdos acessíveis, análises objetivas e tutoriais passo a passo.",
+    "teamTitle": "Fundador & Equipe",
+    "teamText": "Liderado por Diógenes Souza e uma equipe de entusiastas de tecnologia apaixonados por inovação e hardware de alta performance."
+  }
+}

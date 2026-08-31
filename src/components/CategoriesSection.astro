@@ -1,0 +1,137 @@
+---
+import { readData } from '../lib/readData';
+
+const categories = readData('categories.json', []) as string[];
+
+const categoryImages: Record<string, string> = {
+  'Apps e Software': 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&auto=format&fit=crop&q=80',
+  'Inteligência Artificial': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=80',
+  'Computadores e Hardware': 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80',
+  'Jogos': 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=500&auto=format&fit=crop&q=80',
+  'Dicas e Tutoriais': 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=500&auto=format&fit=crop&q=80',
+  'Review': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=500&auto=format&fit=crop&q=80'
+};
+
+function categorySlug(cat: string) {
+  return cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+}
+---
+
+<section class="continue-por-aqui my-5">
+  <!-- CABEÇALHO COM ÍCONE DE ESTRELA, TÍTULO E SETAS DE NAVEGAÇÃO -->
+  <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+    <div class="d-flex align-items-center gap-2">
+      <div class="star-icon" style="color: var(--walker-accent, #2222D3);">
+        <i class="fas fa-star fs-5"></i>
+      </div>
+      <h2 class="h5 fw-extrabold m-0 text-dark" style="font-family: var(--font-heading);">
+        Continue por aqui
+      </h2>
+    </div>
+
+    <!-- SETAS DE NAVEGAÇÃO (ANTERIOR `<` E PRÓXIMO `>`) -->
+    <div class="d-flex align-items-center gap-1.5">
+      <button
+        type="button"
+        class="cat-scroll-prev border-0 rounded-circle text-white d-flex align-items-center justify-content-center"
+        aria-label="Anterior"
+        style="width: 32px; height: 32px; background-color: #0F172A; font-size: 11px; transition: all 0.2s;"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        type="button"
+        class="cat-scroll-next border-0 rounded-circle text-white d-flex align-items-center justify-content-center"
+        aria-label="Próximo"
+        style="width: 32px; height: 32px; background-color: #0F172A; font-size: 11px; transition: all 0.2s;"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- CARROSSEL / GRID DE CARDS DE CATEGORIA -->
+  <div class="cat-grid-wrapper overflow-x-auto pb-2">
+    <div class="d-flex gap-3 cat-grid" style="scroll-behavior: smooth;">
+      {categories.map((cat) => {
+        const slug = categorySlug(cat);
+        const img = categoryImages[cat] || 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=80';
+        return (
+          <a
+            href={`/categoria/${slug}`}
+            class="cat-card-item position-relative rounded-4 overflow-hidden text-decoration-none shadow-sm flex-shrink-0 d-block"
+            style="width: 160px; height: 160px;"
+          >
+            <!-- IMAGEM DE FUNDO DA CATEGORIA -->
+            <img
+              src={img}
+              alt={cat}
+              class="w-100 h-100 object-fit-cover cat-card-img"
+              loading="lazy"
+            />
+            <div class="cat-card-overlay position-absolute inset-0 bg-dark-gradient"></div>
+
+            <!-- BADGE DE MARCA COM O NOME DA CATEGORIA -->
+            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2.5 z-2 text-center" style="width: 85%;">
+              <span
+                class="cat-badge badge px-2.5 py-1.5 fw-bold text-white rounded-3 shadow-sm text-truncate d-block"
+                style="background-color: var(--walker-accent, #2222D3); font-size: 11.5px; letter-spacing: 0.2px; transition: all 0.2s ease;"
+              >
+                {cat}
+              </span>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cat-card-img {
+    transition: transform 0.35s ease;
+  }
+  .cat-card-item:hover .cat-card-img {
+    transform: scale(1.08);
+  }
+  .cat-card-item:hover .cat-badge {
+    background-color: var(--walker-primary, #70EDED) !important;
+    color: #0B0F19 !important;
+  }
+  .bg-dark-gradient {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 60%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .cat-grid-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+  .cat-grid-wrapper {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .cat-scroll-prev:hover,
+  .cat-scroll-next:hover {
+    background-color: var(--walker-accent, #2222D3) !important;
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    var wrapper = document.querySelector('.cat-grid-wrapper');
+    var prevBtn = document.querySelector('.cat-scroll-prev');
+    var nextBtn = document.querySelector('.cat-scroll-next');
+    
+    if (wrapper && prevBtn && nextBtn) {
+      prevBtn.addEventListener('click', function() {
+        wrapper.scrollBy({ left: -250, behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', function() {
+        wrapper.scrollBy({ left: 250, behavior: 'smooth' });
+      });
+    }
+  });
+</script>

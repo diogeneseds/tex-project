@@ -1,0 +1,909 @@
+---
+import { readData } from "../lib/readData";
+import { getCollection } from "astro:content";
+import HeadPlugins from "../plugins/_slots/HeadPlugins.astro";
+import BodyEndPlugins from "../plugins/_slots/BodyEndPlugins.astro";
+import "../styles/global.css";
+
+const siteConfig = readData("siteConfig.json");
+const pluginsConfig = readData("pluginsConfig.json", {});
+const gscVerificationTag =
+  (pluginsConfig as any)?.searchConsole?.verificationTag?.trim() || "";
+
+// Font mapping
+const fontMap: Record<string, { heading: string; body: string; url: string }> =
+  {
+    inter: {
+      heading: "Inter",
+      body: "Inter",
+      url: "family=Inter:wght@400;500;600;700",
+    },
+    outfit: {
+      heading: "Outfit",
+      body: "Inter",
+      url: "family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500",
+    },
+    roboto: {
+      heading: "Roboto",
+      body: "Open Sans",
+      url: "family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600",
+    },
+    poppins: {
+      heading: "Poppins",
+      body: "Inter",
+      url: "family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600",
+    },
+    montserrat: {
+      heading: "Montserrat",
+      body: "Merriweather",
+      url: "family=Montserrat:wght@400;500;600;700&family=Merriweather:wght@400;700",
+    },
+    playfair: {
+      heading: "Playfair Display",
+      body: "Source Sans 3",
+      url: "family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;600",
+    },
+    lora: {
+      heading: "Lora",
+      body: "Merriweather",
+      url: "family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700",
+    },
+  };
+const selectedFont =
+  fontMap[siteConfig.theme?.font || "poppins"] || fontMap.poppins;
+
+const primaryColor = siteConfig.theme?.primary || "#70EDED";
+const accentColor = siteConfig.theme?.accent || "#2222D3";
+const darkColor = siteConfig.theme?.dark || "#0B0F19";
+const categoriesData = readData<string[]>("categories.json", []);
+const menuItems: any[] = readData("menu.json", { items: [] }).items || [];
+
+const posts = await getCollection("blog");
+const categoriesFromPosts = [
+  ...new Set(
+    posts
+      .map((p) => p.data.category)
+      .filter((c): c is string => typeof c === "string" && c.trim().length > 0),
+  ),
+];
+const finalCategoriesData: string[] = Array.isArray(categoriesData)
+  ? categoriesData.filter(
+      (c): c is string => typeof c === "string" && c.trim().length > 0,
+    )
+  : [];
+const allCategories: string[] =
+  finalCategoriesData.length > 0 ? finalCategoriesData : categoriesFromPosts;
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article";
+  bodyClass?: string;
+}
+
+const {
+  title = siteConfig.name,
+  description = siteConfig.description,
+  image = "",
+  type = "website",
+  bodyClass = "",
+} = Astro.props;
+
+const formattedTitle =
+  title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
+const siteUrl = siteConfig.url || Astro.url.origin;
+const socialImage = image?.startsWith("http")
+  ? image
+  : image
+    ? new URL(image, siteUrl).toString()
+    : "";
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>{formattedTitle}</title>
+    <meta name="description" content={description} />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <link rel="icon" href={siteConfig.favicon || "/favicon.svg"} />
+
+    <!-- Google Search Console verification -->
+    {
+      gscVerificationTag &&
+        (gscVerificationTag.startsWith("<") ? (
+          <Fragment set:html={gscVerificationTag} />
+        ) : (
+          <meta name="google-site-verification" content={gscVerificationTag} />
+        ))
+    }
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={formattedTitle} />
+    <meta property="og:description" content={description} />
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    <meta property="og:url" content={Astro.url} />
+
+    <!-- Speculation Rules API for instant internal navigation (Core Web Vitals) -->
+    <script type="speculationrules">
+      {
+        "prerender": [
+          {
+            "where": { "href_matches": "/*" },
+            "eagerness": "moderate"
+          }
+        ]
+      }
+    </script>
+
+    <!-- STYLES via CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"
+    />
+    <!-- Walker theme -->
+    <link rel="stylesheet" href="/css/style.css" />
+    <!-- Google Fonts (dynamic) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href={`https://fonts.googleapis.com/css2?${selectedFont.url}&display=swap`}
+    />
+    <!-- Dynamic theme colors from CMS & Core Web Vitals CSS fixes -->
+    <Fragment
+      set:html={`<style>
+    :root {
+      --walker-primary: ${primaryColor};
+      --walker-accent: ${accentColor};
+      --walker-dark: ${darkColor};
+      --walker-font-heading: "${selectedFont.heading}", sans-serif;
+      --walker-font-body: "${selectedFont.body}", sans-serif;
+      --color-primary: 112 237 237;
+      --color-accent: 34 34 211;
+    }
+    /* LIMITE MÁXIMO DE ALTURA DA LOGO NO CABEÇALHO (opcional): */
+    .navbar-brand img {
+      max-height: 48px;
+      width: auto;
+      object-fit: contain;
+    }
+    .canvas-menu.position-left {
+      left: 0 !important;
+      right: auto !important;
+      transform: translateX(-100%) !important;
+      z-index: 1050 !important;
+      width: 320px !important;
+      max-width: 85vw !important;
+      box-shadow: 4px 0 25px rgba(0,0,0,0.5) !important;
+      background-color: var(--walker-dark, #0B0F19) !important;
+      color: #ffffff !important;
+      padding: 24px 20px !important;
+    }
+    .canvas-menu.position-left.open {
+      transform: translateX(0) !important;
+    }
+    .canvas-menu .canvas-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    .canvas-menu .canvas-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    .canvas-menu .btn-close {
+      filter: invert(1) grayscale(100%) brightness(200%) !important;
+    }
+    .site-wrapper .main-overlay {
+      z-index: 1040 !important;
+    }
+    .canvas-menu .vertical-menu li a {
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      font-size: 14px !important;
+      letter-spacing: 0.5px !important;
+      color: #E2E8F0 !important;
+      display: block !important;
+      padding: 10px 0 !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+      text-decoration: none !important;
+      transition: all 0.2s ease !important;
+    }
+    .canvas-menu .vertical-menu li a:hover {
+      color: var(--walker-primary, #70EDED) !important;
+      padding-left: 6px !important;
+    }
+    .canvas-menu .vertical-menu ul.submenu li a {
+      font-size: 13px !important;
+      text-transform: none !important;
+      color: #CBD5E1 !important;
+      padding: 6px 0 6px 16px !important;
+      border-bottom: none !important;
+    }
+    .canvas-menu .vertical-menu ul.submenu li a:hover {
+      color: var(--walker-primary, #70EDED) !important;
+    }
+    .social-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 50% !important;
+      background: #F1F5F9 !important;
+      font-size: 16px !important;
+      transition: all 0.2s ease !important;
+      text-decoration: none !important;
+    }
+    .social-btn.facebook { color: #1877F2 !important; }
+    .social-btn.instagram { color: #E4405F !important; }
+    .social-btn.youtube { color: #FF0000 !important; }
+    .social-btn.twitter { color: #000000 !important; }
+    .social-btn.linkedin { color: #0A66C2 !important; }
+    header button.burger-menu,
+    header button.search {
+      background: none !important;
+      background-image: none !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      width: auto !important;
+      height: auto !important;
+      line-height: 1 !important;
+      padding: 0 !important;
+    }
+    .header-social-icon {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: #cbd5e1 !important;
+      text-decoration: none !important;
+      transition: color 0.2s ease !important;
+    }
+    .header-social-icon:hover {
+      color: #70EDED !important;
+    }
+    /* ESTILO TECMUNDO ADAPTADO À MARCA TECEXTREME */
+    .header-tecmundo {
+      background-color: var(--walker-dark, #0B0F19);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+    }
+    .header-tecmundo .burger-menu {
+      color: #ffffff !important;
+      font-size: 1.35rem;
+      transition: color 0.2s ease, opacity 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .header-tecmundo .burger-menu:hover {
+      color: var(--walker-primary, #70EDED) !important;
+    }
+    .header-search-box {
+      background-color: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      height: 40px;
+    }
+    .header-search-box .search-icon {
+      color: var(--walker-primary, #70EDED);
+      transition: color 0.2s ease;
+    }
+    .header-search-box:focus-within {
+      background-color: rgba(255, 255, 255, 0.12);
+      border-color: var(--walker-primary, #70EDED);
+      box-shadow: 0 0 0 3px rgba(112, 237, 237, 0.18);
+    }
+    .header-search-input::placeholder {
+      color: rgba(255, 255, 255, 0.6) !important;
+      font-size: 0.875rem;
+    }
+    .header-search-input {
+      color: #ffffff !important;
+      font-size: 0.875rem;
+    }
+    .header-search-input:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+    .header-social-link {
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-size: 1.15rem;
+      text-decoration: none !important;
+      transition: transform 0.15s ease, color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+    }
+    .header-social-link:hover {
+      color: var(--walker-primary, #70EDED) !important;
+      transform: translateY(-1px);
+    }
+
+    /* LARGURA MÁXIMA PADRÃO TECMUNDO: 1032PX (DO MENU AO RODAPÉ) */
+    .container-xl,
+    .container-tecmundo {
+      max-width: 1032px !important;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+  </style>`}
+    />
+    <!-- Head plugins: GA, Meta Pixel, AdSense -->
+    <HeadPlugins />
+  </head>
+
+  <body class={bodyClass}>
+    <!-- preloader -->
+    <div id="preloader">
+      <div class="book">
+        <div class="inner">
+          <div class="left"></div>
+          <div class="middle"></div>
+          <div class="right"></div>
+        </div>
+        <ul>
+          <li></li><li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li><li></li>
+        </ul>
+      </div>
+    </div>
+    <script is:inline>
+      setTimeout(function() {
+        var p = document.getElementById('preloader');
+        if (p && p.style.display !== 'none') {
+          p.style.opacity = '0';
+          p.style.transition = 'opacity 0.4s ease';
+          setTimeout(function() { p.style.display = 'none'; }, 400);
+        }
+      }, 1500);
+    </script>
+
+    <!-- site wrapper -->
+    <div class="site-wrapper">
+      <div class="main-overlay"></div>
+
+      <!-- header (Estilo TecMundo com Cores TecExtreme) -->
+      <header class="header-tecmundo sticky-top py-2">
+        <div class="container-xl">
+          <div
+            class="d-flex align-items-center justify-content-between"
+            style="min-height: 42px;"
+          >
+            <!-- LEFT: Burger Menu Button + Logo TecExtreme (alinhados à esquerda como no TecMundo) -->
+            <div class="d-flex align-items-center gap-3">
+              <button
+                class="burger-menu border-0 bg-transparent text-white p-0 cursor-pointer me-1"
+                aria-label="Abrir Menu"
+              >
+                <i class="fas fa-bars"></i>
+              </button>
+
+              <a
+                class="navbar-brand m-0 p-0 d-inline-flex align-items-center"
+                href="/"
+              >
+                <img
+                  src="/logo-tecextreme-header.svg"
+                  alt={siteConfig.name}
+                  style="height: 38px; width: auto;"
+                  fetchpriority="high"
+                />
+              </a>
+            </div>
+
+            <!-- CENTER: Barra de Pesquisa Integrada (Estilo TecMundo) -->
+            <div
+              class="header-search-container d-none d-md-flex align-items-center flex-grow-1 mx-4"
+              style="max-width: 540px;"
+            >
+              <form action="/blog" method="GET" class="w-100 m-0">
+                <div class="header-search-box d-flex align-items-center w-100 px-3">
+                  <i class="fas fa-search text-white-50 me-2" style="font-size: 14px;"></i>
+                  <input
+                    type="search"
+                    name="q"
+                    placeholder="Busque por notícias, análises, produtos..."
+                    class="header-search-input border-0 bg-transparent text-white w-100"
+                    autocomplete="off"
+                  />
+                </div>
+              </form>
+            </div>
+
+            <!-- RIGHT: Redes Sociais TecMundo + Busca Mobile -->
+            <div class="d-flex align-items-center gap-3">
+              <div class="d-none d-sm-flex align-items-center gap-2">
+                {
+                  siteConfig.social?.facebook && (
+                    <a
+                      href={siteConfig.social.facebook}
+                      target="_blank"
+                      rel="noopener"
+                      class="header-social-link"
+                      title="Facebook"
+                    >
+                      <i class="fab fa-facebook-f"></i>
+                    </a>
+                  )
+                }
+                {
+                  siteConfig.social?.instagram && (
+                    <a
+                      href={siteConfig.social.instagram}
+                      target="_blank"
+                      rel="noopener"
+                      class="header-social-link"
+                      title="Instagram"
+                    >
+                      <i class="fab fa-instagram"></i>
+                    </a>
+                  )
+                }
+                {
+                  siteConfig.social?.youtube && (
+                    <a
+                      href={siteConfig.social.youtube}
+                      target="_blank"
+                      rel="noopener"
+                      class="header-social-link"
+                      title="YouTube"
+                    >
+                      <i class="fab fa-youtube"></i>
+                    </a>
+                  )
+                }
+                {
+                  siteConfig.social?.tiktok && (
+                    <a
+                      href={siteConfig.social.tiktok}
+                      target="_blank"
+                      rel="noopener"
+                      class="header-social-link"
+                      title="TikTok"
+                    >
+                      <i class="fab fa-tiktok"></i>
+                    </a>
+                  )
+                }
+                {
+                  siteConfig.social?.linkedin && (
+                    <a
+                      href={siteConfig.social.linkedin}
+                      target="_blank"
+                      rel="noopener"
+                      class="header-social-link"
+                      title="LinkedIn"
+                    >
+                      <i class="fab fa-linkedin-in"></i>
+                    </a>
+                  )
+                }
+                {
+                  siteConfig.social?.twitter && (
+                    <a
+                      href={siteConfig.social.twitter}
+                      target="_blank"
+                      rel="noopener"
+                      class="header-social-link"
+                      title="X (Twitter)"
+                    >
+                      <i class="fab fa-x-twitter"></i>
+                    </a>
+                  )
+                }
+              </div>
+
+              <!-- Lupa de Busca para Mobile -->
+              <button
+                class="search border-0 bg-transparent text-white fs-5 p-0 cursor-pointer d-md-none"
+                aria-label="Pesquisar"
+              >
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT -->
+      <slot />
+
+      <!-- instagram feed -->
+      {
+        siteConfig.social?.instagram && (
+          <div class="instagram">
+            <div class="container-xl">
+              <a
+                href={siteConfig.social.instagram}
+                class="btn btn-default btn-instagram"
+                target="_blank"
+                rel="noopener"
+              >
+                @
+                {siteConfig.social.instagram
+                  .replace("https://instagram.com/", "")
+                  .replace("https://www.instagram.com/", "")}{" "}
+                no Instagram
+              </a>
+              <div class="instagram-feed d-flex flex-wrap">
+                <div class="insta-item col-sm-2 col-6 col-md-2">
+                  <a href={siteConfig.social.instagram}>
+                    <img
+                      src="https://picsum.photos/seed/insta1/300/300"
+                      alt="instagram"
+                    />
+                  </a>
+                </div>
+                <div class="insta-item col-sm-2 col-6 col-md-2">
+                  <a href={siteConfig.social.instagram}>
+                    <img
+                      src="https://picsum.photos/seed/insta2/300/300"
+                      alt="instagram"
+                    />
+                  </a>
+                </div>
+                <div class="insta-item col-sm-2 col-6 col-md-2">
+                  <a href={siteConfig.social.instagram}>
+                    <img
+                      src="https://picsum.photos/seed/insta3/300/300"
+                      alt="instagram"
+                    />
+                  </a>
+                </div>
+                <div class="insta-item col-sm-2 col-6 col-md-2">
+                  <a href={siteConfig.social.instagram}>
+                    <img
+                      src="https://picsum.photos/seed/insta4/300/300"
+                      alt="instagram"
+                    />
+                  </a>
+                </div>
+                <div class="insta-item col-sm-2 col-6 col-md-2">
+                  <a href={siteConfig.social.instagram}>
+                    <img
+                      src="https://picsum.photos/seed/insta5/300/300"
+                      alt="instagram"
+                    />
+                  </a>
+                </div>
+                <div class="insta-item col-sm-2 col-6 col-md-2">
+                  <a href={siteConfig.social.instagram}>
+                    <img
+                      src="https://picsum.photos/seed/insta6/300/300"
+                      alt="instagram"
+                    />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      <!-- footer -->
+      <footer>
+        <div class="container-xl">
+          <div class="footer-inner">
+            <div class="row d-flex align-items-center gy-4">
+              <div class="col-md-4">
+                <span class="copyright"
+                  >© {new Date().getFullYear()} {siteConfig.name}.</span
+                >
+              </div>
+              <div class="col-md-4 text-center">
+                <ul class="social-icons list-unstyled list-inline mb-0">
+                  {
+                    siteConfig.social?.facebook && (
+                      <li class="list-inline-item">
+                        <a
+                          href={siteConfig.social.facebook}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <i class="fab fa-facebook-f" />
+                        </a>
+                      </li>
+                    )
+                  }
+                  {
+                    siteConfig.social?.twitter && (
+                      <li class="list-inline-item">
+                        <a
+                          href={siteConfig.social.twitter}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <i class="fab fa-twitter" />
+                        </a>
+                      </li>
+                    )
+                  }
+                  {
+                    siteConfig.social?.instagram && (
+                      <li class="list-inline-item">
+                        <a
+                          href={siteConfig.social.instagram}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <i class="fab fa-instagram" />
+                        </a>
+                      </li>
+                    )
+                  }
+                  {
+                    siteConfig.social?.pinterest && (
+                      <li class="list-inline-item">
+                        <a
+                          href={siteConfig.social.pinterest}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <i class="fab fa-pinterest" />
+                        </a>
+                      </li>
+                    )
+                  }
+                  {
+                    siteConfig.social?.youtube && (
+                      <li class="list-inline-item">
+                        <a
+                          href={siteConfig.social.youtube}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <i class="fab fa-youtube" />
+                        </a>
+                      </li>
+                    )
+                  }
+                </ul>
+              </div>
+              <div class="col-md-4">
+                <a href="#" id="return-to-top" class="float-md-end"
+                  ><i class="icon-arrow-up"></i>Voltar ao Topo</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div><!-- end site wrapper -->
+
+    <!-- search popup -->
+    <div class="search-popup">
+      <button type="button" class="btn-close" aria-label="Close"></button>
+      <div class="search-content">
+        <div class="text-center">
+          <h3 class="mb-4 mt-0">Pressione ESC para fechar</h3>
+        </div>
+        <form class="d-flex search-form" action="/blog">
+          <input
+            class="form-control me-2"
+            type="search"
+            name="q"
+            placeholder="Buscar e pressione Enter ..."
+            aria-label="Search"
+          />
+          <button class="btn btn-default btn-lg" type="submit"
+            ><i class="icon-magnifier"></i></button
+          >
+        </form>
+      </div>
+    </div>
+
+    <!-- canvas menu (lado esquerdo) -->
+    <div
+      class="canvas-menu position-left d-flex flex-column justify-content-between"
+    >
+      <div>
+        <!-- Cabeçalho do Menu Lateral (Logo + Botão Fechar) -->
+        <div
+          class="canvas-header d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom"
+        >
+          <div class="logo m-0" style="max-width: 170px;">
+            <a href="/">
+              <!-- 
+            ===================================================================
+            TAMANHO DA LOGO DENTRO DO MENU LATERAL (DRAWER):
+            Para alterar a altura da logo no menu lateral, modifique 'max-height: 44px' abaixo.
+            ===================================================================
+          -->
+              {
+                siteConfig.logo ? (
+                  <img
+                    src={siteConfig.logo}
+                    alt={siteConfig.name}
+                    style="max-height: 44px; width: auto;"
+                  />
+                ) : (
+                  <span style="font-family: var(--walker-font-heading); font-weight: 700; font-size: 1.4rem; color: var(--walker-dark);">
+                    {siteConfig.name}
+                  </span>
+                )
+              }
+            </a>
+          </div>
+          <button
+            type="button"
+            class="btn-close text-reset"
+            aria-label="Close"
+            style="opacity: 0.7; cursor: pointer;"></button>
+        </div>
+
+        <!-- Navegação Principal -->
+        <nav class="canvas-nav">
+          <ul class="vertical-menu list-unstyled p-0 m-0">
+            {
+              menuItems.map((item: any) =>
+                item.showCategories ? (
+                  <li>
+                    <a href={item.href}>{item.label}</a>
+                    <ul class="submenu">
+                      {allCategories.map((cat: string) => (
+                        <li>
+                          <a
+                            href={`/categoria/${(cat || "").toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+                          >
+                            {cat}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ) : (
+                  <li>
+                    <a href={item.href}>{item.label}</a>
+                  </li>
+                ),
+              )
+            }
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Rodapé do Menu Lateral (Redes Sociais + Links Institucionais) -->
+      <div class="canvas-footer pt-3 mt-4 border-top">
+        <div class="social-icons-wrapper mb-3">
+          <ul class="list-unstyled d-flex align-items-center gap-2 m-0 p-0">
+            {
+              siteConfig.social?.facebook && (
+                <li>
+                  <a
+                    href={siteConfig.social.facebook}
+                    target="_blank"
+                    rel="noopener"
+                    class="social-btn facebook"
+                    title="Facebook"
+                  >
+                    <i class="fab fa-facebook-f" />
+                  </a>
+                </li>
+              )
+            }
+            {
+              siteConfig.social?.instagram && (
+                <li>
+                  <a
+                    href={siteConfig.social.instagram}
+                    target="_blank"
+                    rel="noopener"
+                    class="social-btn instagram"
+                    title="Instagram"
+                  >
+                    <i class="fab fa-instagram" />
+                  </a>
+                </li>
+              )
+            }
+            {
+              siteConfig.social?.youtube && (
+                <li>
+                  <a
+                    href={siteConfig.social.youtube}
+                    target="_blank"
+                    rel="noopener"
+                    class="social-btn youtube"
+                    title="YouTube"
+                  >
+                    <i class="fab fa-youtube" />
+                  </a>
+                </li>
+              )
+            }
+            {
+              siteConfig.social?.twitter && (
+                <li>
+                  <a
+                    href={siteConfig.social.twitter}
+                    target="_blank"
+                    rel="noopener"
+                    class="social-btn twitter"
+                    title="X (Twitter)"
+                  >
+                    <i class="fab fa-x-twitter" />
+                  </a>
+                </li>
+              )
+            }
+          </ul>
+        </div>
+
+        <div
+          class="footer-links-wrapper d-flex flex-wrap gap-2 text-muted"
+          style="font-size: 13px;"
+        >
+          <a
+            href="/sobre"
+            class="text-secondary text-decoration-none hover-dark">Sobre Nós</a
+          >
+          <span>•</span>
+          <a
+            href="/contato"
+            class="text-secondary text-decoration-none hover-dark">Contato</a
+          >
+          <span>•</span>
+          <a
+            href="/privacidade"
+            class="text-secondary text-decoration-none hover-dark"
+            >Termos de Uso</a
+          >
+          <span>•</span>
+          <a
+            href="/privacidade"
+            class="text-secondary text-decoration-none hover-dark"
+            >Política de Privacidade</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Body-end plugins: EmailPopup, CookieConsent -->
+    <BodyEndPlugins />
+
+    <!-- SCRIPTS -->
+    <script is:inline src="https://code.jquery.com/jquery-3.7.1.min.js"
+    ></script>
+    <script
+      is:inline
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ></script>
+    <script
+      is:inline
+      src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"
+    ></script>
+    <script is:inline src="/js/jquery.sticky-sidebar.min.js"></script>
+    <script is:inline src="/js/custom.js"></script>
+  </body>
+</html>

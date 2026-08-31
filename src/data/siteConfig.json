@@ -1,0 +1,33 @@
+{
+  "name": "TecExtreme",
+  "description": "Descomplicando a tecnologia ao extremo. Aprenda sobre tecnologia e eleve seu conhecimento ao extremo.",
+  "url": "https://tecextreme.com.br",
+  "author": "Diógenes Souza",
+  "language": "pt-BR",
+  "logo": "/logo-tecextreme.svg",
+  "favicon": "/favicon.svg",
+  "theme": {
+    "primary": "#70EDED",
+    "accent": "#2222D3",
+    "dark": "#0B0F19",
+    "font": "inter"
+  },
+  "social": {
+    "facebook": "https://www.facebook.com/tecextreme.tecnologia/",
+    "instagram": "https://www.instagram.com/tecextreme/",
+    "twitter": "https://x.com/tecextreme",
+    "pinterest": "",
+    "youtube": "https://www.youtube.com/@tecextreme.tecnologia"
+  },
+  "contact": {
+    "email": "contato@tecextreme.com.br",
+    "phone": "",
+    "address": "Brasil",
+    "name": "TecExtreme"
+  },
+  "legal": {
+    "terms_last_updated": "2026-08-26",
+    "privacy_last_updated": "2026-08-26"
+  },
+  "postUrlPrefix": ""
+}

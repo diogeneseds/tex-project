@@ -1,0 +1,9 @@
+[
+  {
+    "id": "author-1",
+    "name": "Equipe de Redação",
+    "role": "Redação",
+    "avatar": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADEAAAAxCAYAAABznEEcAAAACXBIWXMAAAsSAAALEgHS3X78AAAB6UlEQVRoge2ZwU3DMBRAXxEH1AvZgGxAJqAwAWUCugFhAjJC2QA2gAlINygb0DtB5cKRz+E7iglp6lYJNchPimLHP45f6u9Y6kBE+Ovs7XoAXRAkfCFI+EKQ8IUg4QtBwheChC8ECV/YXxdw/fYWAYlLZxfD4fDk4ODDIXQOTIDIlB8aYsbmuS/AXVtnayVMR08Ocbx+fi6AoxXNM6ucmvPYlMvBlsRABiyB6brn/uZ0GllHhA4uAg7RAdtkwLEpN/1K3xGRrY60KLK0KCQtinzbPkRkIiJLEclFJDLXYqk4deln14l9h+bEiOqNl9NnBuQunexaAqqpNEIFElQgWxH/A5fE3oQJmpQlea09pkpaO+YROAeurGv1e1fSh8TIqt+siMtq9RRN8oTmRG+l6+k0BxZb3HeKyh9adWe6lkjQ78QMGLQcNhHNS6wzfSX2fIPYlOoDeWbOR2wg0peE0zYF/RVidAreo8l8Czyb65FLJ10n9qakwCXwTrUVydAtyLE5Z+s66UsioX2JTNF9UTnwqalDtV+6Me12WyNdS9i5YC+1C75v8EDfcBlf3+RN0RUqNuVJ20P7kCjfWt4St0SlXmr32O0ZjkvtIPw/4QlBwheChC8ECV8IEr4QJHwhSPhCkPCFfyHxBd7J6yARH9x5AAAAAElFTkSuQmCC",
+    "bio": "A equipe de redação da TexExtreme é composta por profissionais dedicados ao mundo tec."
+  }
+]

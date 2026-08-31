@@ -1,0 +1,339 @@
+---
+import { postUrl } from '../lib/blogRoutes';
+
+interface Props {
+  posts: any[];
+}
+
+const { posts = [] } = Astro.props;
+
+// 1. Slider Posts (5 posts)
+const sliderPosts = posts.slice(0, 5);
+
+// 2. Lista de 3 Posts (texto)
+const listPosts = posts.slice(5, 8);
+
+// 3. Post Destaque Único por último (card com foto)
+const singleCardPost = posts[8] || posts[0];
+---
+
+<div class="voxel-hero mb-4">
+  <div class="voxel-hero-grid d-flex flex-column flex-lg-row gap-3" style="height: 100%;">
+    
+    <!-- COLUNA ESQUERDA: SLIDER DE 5 POSTS (MEDIDAS EXATAS VOXEL: 658px x 628px) -->
+    <div class="voxel-hero-left">
+      <div class="voxel-hero-slider-wrapper position-relative rounded-3 overflow-hidden shadow-sm h-100">
+        <div class="voxel-hero-slider h-100">
+          {sliderPosts.map((post, index) => (
+            <div
+              class="voxel-slide-item position-relative h-100"
+              key={post.slug}
+              style={index === 0 ? "display: block;" : "display: none;"}
+            >
+              <a href={postUrl(post.slug)} class="d-block text-decoration-none h-100 position-relative">
+                <img
+                  src={post.data.heroImage || '/images/default-hero.jpg'}
+                  alt={post.data.title}
+                  class="w-100 h-100 object-fit-cover voxel-slide-img"
+                  fetchpriority={index === 0 ? "high" : "low"}
+                />
+
+                <!-- Badge Contador Top Right (1/5, 2/5, etc.) -->
+                <div
+                  class="voxel-counter-badge position-absolute top-0 end-0 m-3 px-2.5 py-1 rounded-pill text-white fw-bold"
+                  style="background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); font-size: 11px; z-index: 5;"
+                >
+                  {index + 1}/{sliderPosts.length}
+                </div>
+
+                <!-- Overlay de Gradiente Escuro no Rodapé do Slide -->
+                <div
+                  class="voxel-slide-overlay position-absolute bottom-0 start-0 w-100 p-3 p-md-4 text-white"
+                  style="background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 60%, transparent 100%); z-index: 4;"
+                >
+                  <!-- Categoria + Quadradinho de Marca (VOXEL ■) -->
+                  {post.data.category && (
+                    <div class="d-flex align-items-center gap-2 mb-2 text-uppercase fw-extrabold" style="font-size: 12px; letter-spacing: 0.5px;">
+                      <span class="text-white">{post.data.category}</span>
+                      <span class="voxel-square-bullet" style="display: inline-block; width: 7px; height: 7px; background-color: var(--walker-primary, #70EDED);"></span>
+                    </div>
+                  )}
+                  <!-- Título do Post -->
+                  <h2 class="voxel-slide-title text-white fw-extrabold m-0 leading-tight">
+                    {post.data.title}
+                  </h2>
+                </div>
+              </a>
+            </div>
+          ))}
+        </div>
+
+        <!-- Botões de Navegação (Setas Esquerda / Direita) -->
+        <button
+          type="button"
+          class="voxel-slider-prev position-absolute top-50 start-0 translate-middle-y border-0 text-white d-flex align-items-center justify-content-center ms-2 rounded-circle"
+          aria-label="Slide Anterior"
+        >
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button
+          type="button"
+          class="voxel-slider-next position-absolute top-50 end-0 translate-middle-y border-0 text-white d-flex align-items-center justify-content-center me-2 rounded-circle"
+          aria-label="Próximo Slide"
+        >
+          <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <!-- Indicadores de Pontos (Dots 1 a 5) -->
+        <div class="voxel-slider-dots position-absolute bottom-0 start-50 translate-middle-x mb-2.5 d-flex gap-1.5" style="z-index: 6;">
+          {sliderPosts.map((_, i) => (
+            <span class={`voxel-dot ${i === 0 ? 'active' : ''}`} data-index={i}></span>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUNA DIREITA: LISTA DE 3 POSTS (294px x 84px CADA) + 1 CARD DESTAQUE -->
+    <div class="voxel-hero-right d-flex flex-column justify-content-between gap-3">
+      
+      <!-- LISTA DE 3 POSTS COM MEDIDAS EXACTAS DA VOXEL (18px font, #232123, margin-bottom 16px) -->
+      <div class="voxel-hero-list bg-white p-3 p-lg-4 rounded-3 border shadow-sm flex-grow-1 d-flex flex-column justify-content-center">
+        <ul class="list-unstyled m-0 d-flex flex-column gap-3">
+          {listPosts.map((post) => (
+            <li class="voxel-list-item d-flex align-items-start gap-2.5">
+              <span
+                class="voxel-square-bullet mt-1 flex-shrink-0"
+                style="display: inline-block; width: 8px; height: 8px; background-color: var(--walker-accent, #2222D3);"
+              ></span>
+              <a
+                href={postUrl(post.slug)}
+                class="voxel-list-title text-decoration-none fw-bold text-hover-accent line-clamp-3"
+                style="color: #232123; font-size: 18px; line-height: 1.32; font-family: var(--font-heading, sans-serif);"
+              >
+                {post.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- 1 POST DESTAQUE POR ÚLTIMO (CARD COM FOTO DE FUNDO) -->
+      {singleCardPost && (
+        <div class="voxel-hero-featured-card position-relative rounded-3 overflow-hidden shadow-sm flex-grow-1" style="height: 270px;">
+          <a href={postUrl(singleCardPost.slug)} class="d-block text-decoration-none h-100 position-relative">
+            <img
+              src={singleCardPost.data.heroImage || '/images/default-hero.jpg'}
+              alt={singleCardPost.data.title}
+              class="w-100 h-100 object-fit-cover voxel-card-img"
+              loading="lazy"
+            />
+            <!-- Overlay do Card Destaque -->
+            <div
+              class="voxel-card-overlay position-absolute bottom-0 start-0 w-100 p-3 text-white"
+              style="background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 70%, transparent 100%); z-index: 4;"
+            >
+              {singleCardPost.data.category && (
+                <div class="d-flex align-items-center gap-1.5 mb-1 text-uppercase fw-extrabold" style="font-size: 11px; letter-spacing: 0.5px;">
+                  <span class="text-white">{singleCardPost.data.category}</span>
+                  <span class="voxel-square-bullet" style="display: inline-block; width: 6px; height: 6px; background-color: var(--walker-primary, #70EDED);"></span>
+                </div>
+              )}
+              <h3 class="voxel-card-title text-white fw-extrabold m-0 leading-snug" style="font-size: 0.95rem;">
+                {singleCardPost.data.title}
+              </h3>
+            </div>
+          </a>
+        </div>
+      )}
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+  /* MEDIDAS EXATAS CONTAINER VOXEL HERO: 1032px x 628px NO DESKTOP */
+  @media (min-width: 992px) {
+    .voxel-hero-left {
+      flex: 0 0 658px;
+      width: 658px;
+      height: 628px;
+    }
+    .voxel-hero-right {
+      flex: 0 0 358px;
+      width: 358px;
+      height: 628px;
+    }
+    .voxel-hero-slider-wrapper {
+      height: 628px !important;
+    }
+    .voxel-slide-title {
+      font-size: 1.6rem !important;
+    }
+  }
+
+  @media (max-width: 991px) {
+    .voxel-hero-left {
+      width: 100%;
+      height: 420px;
+    }
+    .voxel-hero-slider-wrapper {
+      height: 420px !important;
+    }
+    .voxel-slide-title {
+      font-size: 1.25rem !important;
+    }
+    .voxel-hero-featured-card {
+      min-height: 220px;
+    }
+  }
+
+  /* ESTILO E CLAMP DOS 3 POSTS DE TEXTO (EXACTO DA VOXEL: 18px font, #232123, margin-bottom 16px, max 3 linhas) */
+  .voxel-list-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s ease;
+  }
+
+  .voxel-list-item {
+    margin-bottom: 16px;
+  }
+  .voxel-list-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .voxel-slider-prev,
+  .voxel-slider-next {
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+    z-index: 10;
+    font-size: 13px;
+  }
+  .voxel-slider-prev:hover,
+  .voxel-slider-next:hover {
+    background: var(--walker-accent, #2222D3);
+    transform: translateY(-50%) scale(1.08);
+  }
+  .voxel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .voxel-dot.active {
+    width: 22px;
+    border-radius: 4px;
+    background: #ffffff;
+  }
+  .text-hover-accent:hover {
+    color: var(--walker-accent, #2222D3) !important;
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    var slides = document.querySelectorAll('.voxel-slide-item');
+    var dots = document.querySelectorAll('.voxel-dot');
+    var counterBadge = document.querySelector('.voxel-counter-badge');
+    var prevBtn = document.querySelector('.voxel-slider-prev');
+    var nextBtn = document.querySelector('.voxel-slider-next');
+    
+    if (!slides || !slides.length) return;
+    
+    var currentIndex = 0;
+    var totalSlides = slides.length;
+    var autoPlayTimer = null;
+
+    function goToSlide(index) {
+      if (index < 0) index = totalSlides - 1;
+      if (index >= totalSlides) index = 0;
+      currentIndex = index;
+
+      slides.forEach(function(slide, i) {
+        if (i === currentIndex) {
+          slide.style.display = 'block';
+        } else {
+          slide.style.display = 'none';
+        }
+      });
+
+      dots.forEach(function(dot, i) {
+        if (i === currentIndex) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+
+      if (counterBadge) {
+        counterBadge.textContent = (currentIndex + 1) + '/' + totalSlides;
+      }
+    }
+
+    function nextSlide() {
+      goToSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentIndex - 1);
+    }
+
+    function startAutoPlay() {
+      stopAutoPlay();
+      autoPlayTimer = setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayTimer) clearInterval(autoPlayTimer);
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      prevSlide();
+      startAutoPlay();
+    });
+
+    if (nextBtn) nextBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      nextSlide();
+      startAutoPlay();
+    });
+
+    dots.forEach(function(dot, i) {
+      dot.addEventListener('click', function() {
+        goToSlide(i);
+        startAutoPlay();
+      });
+    });
+
+    var touchStartX = 0;
+    var sliderWrapper = document.querySelector('.voxel-hero-slider-wrapper');
+    if (sliderWrapper) {
+      sliderWrapper.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      sliderWrapper.addEventListener('touchend', function(e) {
+        var touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 40) {
+          nextSlide();
+          startAutoPlay();
+        } else if (touchEndX - touchStartX > 40) {
+          prevSlide();
+          startAutoPlay();
+        }
+      }, { passive: true });
+    }
+
+    goToSlide(0);
+    startAutoPlay();
+  });
+</script>

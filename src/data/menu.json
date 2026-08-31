@@ -1,0 +1,46 @@
+{
+    "items": [
+        {
+            "label": "Home",
+            "href": "/",
+            "showCategories": false
+        },
+        {
+            "label": "Blog",
+            "href": "/blog",
+            "showCategories": false
+        },
+        {
+            "label": "Apps e Software",
+            "href": "/categoria/apps-e-software"
+        },
+        {
+            "label": "Inteligência Artificial",
+            "href": "/categoria/inteligencia-artificial"
+        },
+        {
+            "label": "Computadores e Hardware",
+            "href": "/categoria/computadores-e-hardware"
+        },
+        {
+            "label": "Jogos",
+            "href": "/categoria/games-jogos"
+        },
+        {
+            "label": "Dicas e Tutoriais",
+            "href": "/categoria/dicas-e-tutoriais"
+        },
+        {
+            "label": "Review",
+            "href": "/categoria/review"
+        },
+        {
+            "label": "Sobre",
+            "href": "/sobre"
+        },
+        {
+            "label": "Contato",
+            "href": "/contato"
+        }
+    ]
+}

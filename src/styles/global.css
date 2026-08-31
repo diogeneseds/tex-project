@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 112 237 237;
+    --color-primary-dark: 11 15 25;
+    --color-accent: 34 34 211;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Unificação e Centralização Estrita de Todos os Containers do Site (1032px - Estilo Voxel/TecMundo) */
+  .container,
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl,
+  .container-xxl,
+  .max-w-6xl,
+  .max-w-7xl,
+  .site-wrapper .container-xl,
+  .site-wrapper .container,
+  header .container-xl,
+  header .container,
+  footer .container-xl,
+  main .container-xl {
+    max-width: 1032px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+  }
+
+  ::selection {
+    background-color: rgba(112, 237, 237, 0.25);
+    color: #0B0F19;
+  }
+}
+
+/* Header Dark Styling (Geeks Empire Style) */
+.header-default,
+.header-default.clone {
+  background-color: #111625 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 12px 0 !important;
+  width: 100% !important;
+}
+
+.header-default .nav-link,
+.header-default.clone .nav-link {
+  color: #E2E8F0 !important;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.header-default .nav-link:hover,
+.header-default.clone .nav-link:hover {
+  color: #70EDED !important;
+}
+
+.header-default .social-icons a,
+.header-default.clone .social-icons a {
+  color: #CBD5E1 !important;
+}
+
+.header-default .social-icons a:hover,
+.header-default.clone .social-icons a:hover {
+  color: #70EDED !important;
+}
+
+.header-default .icon-button,
+.header-default.clone .icon-button {
+  color: #FFFFFF !important;
+}
+
+.header-default .icon-button:hover,
+.header-default.clone .icon-button:hover {
+  color: #70EDED !important;
+}
+
+.header-default .burger-icon,
+.header-default .burger-icon::before,
+.header-default .burger-icon::after {
+  background-color: #FFFFFF !important;
+}
+
+/* Category Badge Styling with TecExtreme Colors */
+.category-badge {
+  background-color: #70EDED;
+  color: #0B0F19;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.category-badge:hover {
+  background-color: #2222D3;
+  color: #FFFFFF;
+}
+
+/* Buttons with TecExtreme Primary Electric Blue */
+.btn-primary {
+  background-color: #2222D3;
+  color: #FFFFFF;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #1a1ab5;
+  color: #FFFFFF;
+}
+
+@layer components {
+  .walker-section-border {
+    @apply border-b border-gray-200;
+  }
+}

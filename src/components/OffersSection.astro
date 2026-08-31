@@ -1,0 +1,228 @@
+---
+import { readData } from '../lib/readData';
+
+const products = readData('affiliateProducts.json', []) as any[];
+const activeProducts = products.filter((p: any) => p.enabled !== false);
+
+const categories = ['Todas', ...new Set(activeProducts.map(p => p.category).filter(Boolean))];
+
+function getMerchantInfo(merchant?: string, url?: string) {
+  const checkUrl = (url || '').toLowerCase();
+  const checkMerchant = (merchant || '').toLowerCase();
+
+  if (checkMerchant.includes('amazon') || checkUrl.includes('amazon')) {
+    return { name: 'amazon.com.br' };
+  }
+  if (checkMerchant.includes('mercado') || checkUrl.includes('mercadolivre')) {
+    return { name: 'mercadolivre.com.br' };
+  }
+  if (checkMerchant.includes('shopee') || checkUrl.includes('shopee')) {
+    return { name: 'shopee.com.br' };
+  }
+  
+  let domain = merchant || 'loja-parceira.com.br';
+  if (!merchant && url) {
+    try {
+      domain = new URL(url).hostname.replace(/^www\./, '');
+    } catch {
+      domain = 'loja-parceira.com.br';
+    }
+  }
+  return { name: domain };
+}
+---
+
+<section class="offers-tecmundo my-5">
+  <!-- CABEÇALHO DA SEÇÃO (ÍCONE + TÍTULO + ATUALIZADO + SETAS) -->
+  <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+    <div class="d-flex align-items-center gap-2">
+      <div
+        class="offers-icon-wrap d-flex align-items-center justify-content-center rounded-3 p-2"
+        style="background-color: rgba(112, 237, 237, 0.2); color: var(--walker-dark, #0B0F19);"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+      </div>
+      <div>
+        <h2 class="h5 fw-extrabold m-0 text-dark" style="font-family: var(--font-heading);">
+          Ofertas TecExtreme
+        </h2>
+        <span class="text-muted text-xs" style="font-size: 0.78rem;">Atualizado recentemente</span>
+      </div>
+    </div>
+
+    <!-- SETAS DE NAVEGAÇÃO DO CARROSSEL -->
+    <div class="d-flex align-items-center gap-1.5">
+      <button
+        type="button"
+        class="offers-prev-btn border-0 rounded-circle text-white d-flex align-items-center justify-content-center"
+        aria-label="Anterior"
+        style="width: 32px; height: 32px; background-color: #0F172A; font-size: 11px; transition: all 0.2s;"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        type="button"
+        class="offers-next-btn border-0 rounded-circle text-white d-flex align-items-center justify-content-center"
+        aria-label="Próximo"
+        style="width: 32px; height: 32px; background-color: #0F172A; font-size: 11px; transition: all 0.2s;"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- FILTROS DE CATEGORIA -->
+  {categories.length > 1 && (
+    <div class="offers-categories d-flex align-items-center gap-2 overflow-x-auto pb-2 mb-3">
+      {categories.map((cat, i) => (
+        <button
+          type="button"
+          class={`offers-cat-btn btn btn-sm rounded-pill px-3 font-bold text-nowrap ${i === 0 ? 'active btn-dark text-white' : 'btn-light text-secondary'}`}
+          data-category={cat}
+          style="font-size: 13px;"
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
+  )}
+
+  <!-- GRID / CARROSSEL DE CARDS DE PRODUTOS -->
+  <div class="offers-grid-container position-relative">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 offers-grid">
+      {activeProducts.map((product) => {
+        const merchantInfo = getMerchantInfo(product.merchant, product.amazonUrl);
+        return (
+          <div class="col offer-card-item" data-category={product.category || 'Todas'}>
+            <div class="card h-100 border rounded-4 shadow-sm p-3 d-flex flex-column justify-content-between bg-white offer-card">
+              
+              <div>
+                <!-- IMAGEM DO PRODUTO EM CONTAINER BRANCO ARREDONDADO -->
+                <div class="product-img-box position-relative rounded-3 p-3 mb-3 bg-light text-center flex-shrink-0 d-flex align-items-center justify-content-center" style="height: 180px;">
+                  <img
+                    src={product.image || '/images/default-product.jpg'}
+                    alt={product.title}
+                    class="mw-100 mh-100 object-fit-contain"
+                    loading="lazy"
+                  />
+                </div>
+
+                <!-- TÍTULO DO PRODUTO -->
+                <h3 class="product-title h6 fw-bold text-dark mb-3 leading-snug line-clamp-2" style="font-size: 0.925rem; font-family: var(--font-heading);">
+                  {product.title}
+                </h3>
+              </div>
+
+              <!-- BOTÕES E SELO DA LOJA PARCEIRA -->
+              <div class="pt-2 border-top d-flex flex-column gap-2 mt-auto">
+                <!-- 1. ESCRITA "VER REVIEW" QUE LEVA PARA O POST DE REVIEW -->
+                <a
+                  href={product.reviewUrl || '/blog'}
+                  class="offer-review-link text-decoration-none fw-bold text-center py-1 text-xs d-flex align-items-center justify-content-center gap-1"
+                  style="color: var(--walker-dark, #0B0F19); font-size: 13px;"
+                >
+                  <i class="fas fa-file-alt text-xs"></i> Ver Review &rarr;
+                </a>
+
+                <!-- 2. BOTÃO "VER PRODUTO" (AZUL ROYAL / CYAN TECEXTREME) -->
+                <a
+                  href={product.amazonUrl || '#'}
+                  target="_blank"
+                  rel="nofollow noopener sponsored"
+                  class="offer-btn-buy btn w-100 rounded-3 fw-extrabold text-center text-decoration-none text-sm shadow-sm"
+                  style="background-color: var(--walker-accent, #2222D3); color: #ffffff; border: none; padding: 10px 0;"
+                >
+                  Ver Produto
+                </a>
+
+                <!-- 3. SELO DA LOJA (AMAZON, MERCADO LIVRE, SHOPEE) ABAIXO DO BOTÃO -->
+                <div class="d-flex align-items-center justify-content-start gap-1 pt-1.5 text-muted text-xs" style="font-size: 11px;">
+                  {product.category && <span class="text-secondary">{product.category} • </span>}
+                  <span class="fw-semibold text-secondary">{merchantInfo.name}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#94a3b8" class="ms-0.5 flex-shrink-0">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .offer-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .offer-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+  }
+  .offer-review-link:hover {
+    color: var(--walker-accent, #2222D3) !important;
+    text-decoration: underline !important;
+  }
+  .offer-btn-buy {
+    transition: all 0.2s ease;
+  }
+  .offer-btn-buy:hover {
+    background-color: #1a1ab5 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+  }
+  .offers-prev-btn:hover,
+  .offers-next-btn:hover {
+    background-color: var(--walker-accent, #2222D3) !important;
+    color: #ffffff !important;
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    var catBtns = document.querySelectorAll('.offers-cat-btn');
+    var offerCards = document.querySelectorAll('.offer-card-item');
+
+    catBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var category = btn.getAttribute('data-category');
+
+        catBtns.forEach(function(b) {
+          b.classList.remove('btn-dark', 'text-white', 'active');
+          b.classList.add('btn-light', 'text-secondary');
+        });
+
+        btn.classList.remove('btn-light', 'text-secondary');
+        btn.classList.add('btn-dark', 'text-white', 'active');
+
+        offerCards.forEach(function(card) {
+          var cardCat = card.getAttribute('data-category');
+          if (category === 'Todas' || cardCat === category) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    var grid = document.querySelector('.offers-grid');
+    var prevBtn = document.querySelector('.offers-prev-btn');
+    var nextBtn = document.querySelector('.offers-next-btn');
+
+    if (grid && prevBtn && nextBtn) {
+      prevBtn.addEventListener('click', function() {
+        grid.scrollBy({ left: -300, behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', function() {
+        grid.scrollBy({ left: 300, behavior: 'smooth' });
+      });
+    }
+  });
+</script>

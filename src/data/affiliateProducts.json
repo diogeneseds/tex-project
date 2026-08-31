@@ -1,0 +1,46 @@
+[
+  {
+    "id": "prod-1",
+    "slug": "echo-spot-alexa",
+    "title": "Echo Spot com Alexa Smart Display",
+    "category": "Smart Home",
+    "image": "https://images.unsplash.com/photo-1543512214-318c7553f230?w=500&auto=format&fit=crop&q=80",
+    "reviewUrl": "/review-monitor-gamer-curvo",
+    "amazonUrl": "https://amazon.com.br",
+    "merchant": "amazon.com.br",
+    "enabled": true
+  },
+  {
+    "id": "prod-2",
+    "slug": "smartphone-moto-g",
+    "title": "Smartphone Motorola Moto G Max 5G 256GB",
+    "category": "Celulares",
+    "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=80",
+    "reviewUrl": "/review-monitor-gamer-curvo",
+    "amazonUrl": "https://mercadolivre.com.br",
+    "merchant": "mercadolivre.com.br",
+    "enabled": true
+  },
+  {
+    "id": "prod-3",
+    "slug": "echo-dot-shopee",
+    "title": "Smart Speaker Echo Dot 5ª Geração",
+    "category": "Áudio",
+    "image": "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=500&auto=format&fit=crop&q=80",
+    "reviewUrl": "/review-monitor-gamer-curvo",
+    "amazonUrl": "https://shopee.com.br",
+    "merchant": "shopee.com.br",
+    "enabled": true
+  },
+  {
+    "id": "prod-4",
+    "slug": "monitor-gamer-curvo",
+    "title": "Monitor Gamer Curvo 27'' 165Hz 1ms Ultra",
+    "category": "Hardware",
+    "image": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500&auto=format&fit=crop&q=80",
+    "reviewUrl": "/review-monitor-gamer-curvo",
+    "amazonUrl": "https://amazon.com.br",
+    "merchant": "amazon.com.br",
+    "enabled": true
+  }
+]
