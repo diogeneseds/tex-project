@@ -1,0 +1,205 @@
+---
+import { readData } from '../lib/readData';
+
+// Tenta ler vídeos do JSON se existir, ou usa 4 itens fallback de alta qualidade
+const customVideos = readData('videos.json', []) as any[];
+
+const defaultVideos = [
+  {
+    id: 1,
+    title: 'Novo Vídeo em Breve: Análises e Reviews de Hardware Exclusivos!',
+    date: 'Em breve',
+    badge: 'HOJE NO TECEXTREME',
+    thumbnail: '/images/video-placeholder.svg',
+    url: '#'
+  },
+  {
+    id: 2,
+    title: 'Novo Vídeo em Breve: Dicas & Tutoriais Práticos de Tecnologia',
+    date: 'Em breve',
+    badge: 'EM BREVE',
+    thumbnail: '/images/video-placeholder.svg',
+    url: '#'
+  },
+  {
+    id: 3,
+    title: 'Novo Vídeo em Breve: Guia de Compras dos Melhores Gadgets',
+    date: 'Em breve',
+    badge: 'GUIA DE COMPRAS',
+    thumbnail: '/images/video-placeholder.svg',
+    url: '#'
+  },
+  {
+    id: 4,
+    title: 'Novo Vídeo em Breve: As Principais Novidades do Mundo Tech e Games',
+    date: 'Em breve',
+    badge: 'LANÇAMENTOS',
+    thumbnail: '/images/video-placeholder.svg',
+    url: '#'
+  }
+];
+
+const videoList = customVideos.length > 0 ? customVideos : defaultVideos;
+---
+
+<section class="videos-section my-5">
+  <!-- CABEÇALHO DA SEÇÃO (ÍCONE DE PLAY AZUL + TÍTULO "Vídeos" + SETAS DE NAVEGAÇÃO) -->
+  <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+    <div class="d-flex align-items-center gap-2.5">
+      <!-- Ícone de Play Azul em Círculo (estilo TecMundo) -->
+      <div
+        class="video-header-badge rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-sm"
+        style="width: 32px; height: 32px; background-color: var(--walker-accent, #2222D3);"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </div>
+
+      <h2 class="h5 fw-extrabold m-0 text-dark" style="font-family: var(--font-heading);">
+        Vídeos
+      </h2>
+    </div>
+
+    <!-- SETAS DE NAVEGAÇÃO (ANTERIOR `<` E PRÓXIMO `>`) -->
+    <div class="d-flex align-items-center gap-1.5">
+      <button
+        type="button"
+        class="video-scroll-prev border-0 rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm"
+        aria-label="Anterior"
+        style="width: 32px; height: 32px; background-color: #0F172A; font-size: 11px; transition: all 0.2s;"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        type="button"
+        class="video-scroll-next border-0 rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm"
+        aria-label="Próximo"
+        style="width: 32px; height: 32px; background-color: #0F172A; font-size: 11px; transition: all 0.2s;"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- CARROSSEL / GRID DE VÍDEOS -->
+  <div class="videos-grid-wrapper overflow-x-auto pb-2">
+    <div class="d-flex gap-3.5 videos-grid" style="scroll-behavior: smooth;">
+      {videoList.map((item) => (
+        <a
+          href={item.url || '#'}
+          class="video-card-item group position-relative text-decoration-none flex-shrink-0 d-block"
+          style="width: 270px;"
+        >
+          <!-- THUMBNAIL DO VÍDEO COM PROPORÇÃO 16:9 -->
+          <div
+            class="video-thumb-container position-relative rounded-4 overflow-hidden shadow-sm bg-slate-900"
+            style="aspect-ratio: 16 / 9;"
+          >
+            <!-- IMAGEM FALLBACK COM A LOGO TECEXTREME -->
+            <img
+              src={item.thumbnail || '/images/video-placeholder.svg'}
+              alt={item.title}
+              class="w-100 h-100 object-fit-cover video-thumb-img"
+              loading="lazy"
+            />
+
+            <!-- GRADIENTE ESCURO DE SOBREPOSIÇÃO -->
+            <div class="position-absolute inset-0 bg-dark-video-gradient"></div>
+
+            <!-- BOTÃO PLAY NO CENTRO DA THUMBNAIL (BOTAO CIRCULAR COM EFEITO HOVER AZUL) -->
+            <div class="position-absolute top-50 start-50 translate-middle z-2">
+              <div
+                class="video-play-btn rounded-circle text-white d-flex align-items-center justify-content-center shadow"
+                style="width: 44px; height: 44px; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px); border: 1.5px solid rgba(255, 255, 255, 0.3); transition: all 0.3s ease;"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 2px;">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- BADGE INFERIOR ESQUERDA (EX: HOJE NO TECEXTREME) -->
+            {item.badge && (
+              <div class="position-absolute bottom-0 start-0 m-2 z-2">
+                <span
+                  class="badge px-2 py-1 fw-bold text-white rounded-2 shadow-sm text-uppercase"
+                  style="background-color: var(--walker-accent, #2222D3); font-size: 9.5px; letter-spacing: 0.5px;"
+                >
+                  {item.badge}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <!-- DETALHES DO VÍDEO (TÍTULO E DATA) -->
+          <div class="mt-2.5 px-0.5">
+            <h3
+              class="video-card-title h6 fw-bold text-dark mb-1 leading-snug line-clamp-2"
+              style="font-size: 0.885rem; font-family: var(--font-heading); line-height: 1.35; transition: color 0.2s ease;"
+            >
+              {item.title}
+            </h3>
+            <span class="text-muted text-xs d-block" style="font-size: 0.78rem;">
+              {item.date}
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .bg-dark-video-gradient {
+    background: linear-gradient(to top, rgba(11, 15, 25, 0.8) 0%, rgba(11, 15, 25, 0.1) 60%, transparent 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .video-thumb-img {
+    transition: transform 0.35s ease;
+  }
+  .video-card-item:hover .video-thumb-img {
+    transform: scale(1.06);
+  }
+  .video-card-item:hover .video-play-btn {
+    background-color: var(--walker-accent, #2222D3) !important;
+    border-color: #70EDED !important;
+    transform: scale(1.15);
+    box-shadow: 0 0 18px rgba(34, 34, 211, 0.5) !important;
+  }
+  .video-card-item:hover .video-card-title {
+    color: var(--walker-accent, #2222D3) !important;
+  }
+  .videos-grid-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+  .videos-grid-wrapper {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .video-scroll-prev:hover,
+  .video-scroll-next:hover {
+    background-color: var(--walker-accent, #2222D3) !important;
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    var wrapper = document.querySelector('.videos-grid-wrapper');
+    var prevBtn = document.querySelector('.video-scroll-prev');
+    var nextBtn = document.querySelector('.video-scroll-next');
+    
+    if (wrapper && prevBtn && nextBtn) {
+      prevBtn.addEventListener('click', function() {
+        wrapper.scrollBy({ left: -290, behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', function() {
+        wrapper.scrollBy({ left: 290, behavior: 'smooth' });
+      });
+    }
+  });
+</script>

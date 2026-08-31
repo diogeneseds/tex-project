@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar.astro';
 import VoxelHero from '../components/VoxelHero.astro';
 import OffersSection from '../components/OffersSection.astro';
 import CategoriesSection from '../components/CategoriesSection.astro';
+import VideosSection from '../components/VideosSection.astro';
 import { getCollection } from 'astro:content';
 import { readData } from '../lib/readData';
 import { postUrl } from '../lib/blogRoutes';
@@ -40,6 +41,9 @@ function formatDate(date: Date) {
 
     <!-- Seção Continue por Aqui (Categorias do Blog) -->
     <CategoriesSection />
+
+    <!-- Seção Vídeos (Vídeos TecExtreme) -->
+    <VideosSection />
 
     <div class="flex flex-col lg:flex-row gap-8">
 
