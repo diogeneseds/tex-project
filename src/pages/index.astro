@@ -65,7 +65,7 @@ function getRelativeTime(date: Date) {
       <div class="flex-1 min-w-0">
         
         <!-- CABEÇALHO COM ÍCONE DE RSS / FEED E TÍTULO -->
-        <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-200">
           <div class="flex items-center gap-2.5">
             <div class="text-[#2222D3] flex items-center justify-center">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -74,7 +74,7 @@ function getRelativeTime(date: Date) {
                 <circle cx="5" cy="19" r="1" fill="currentColor" />
               </svg>
             </div>
-            <h2 class="text-xl font-bold text-slate-900 dark:text-white" style="font-family: var(--font-heading);">
+            <h2 class="h5 fw-extrabold m-0 text-dark" style="font-family: var(--font-heading); color: #0B0F19;">
               {sectionTitle}
             </h2>
           </div>
@@ -88,7 +88,7 @@ function getRelativeTime(date: Date) {
         )}
 
         <!-- LISTA HORIZONTAL DE CARDS DE POSTS (ESTILO TECMUNDO) -->
-        <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-800/60">
+        <div class="flex flex-col divide-y divide-slate-100">
           {latestPosts.map(post => (
             <article class="relative py-4 first:pt-0 last:pb-0 group">
               <div class="flex flex-row gap-4 sm:gap-5 items-center min-h-[138px]">
@@ -122,9 +122,15 @@ function getRelativeTime(date: Date) {
                     </div>
                   )}
 
-                  <!-- TÍTULO DO POST -->
-                  <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug group-hover:text-[#2222D3] transition-colors" style="font-family: var(--font-heading);">
-                    <a href={postUrl(post.slug)}>{post.data.title}</a>
+                  <!-- TÍTULO DO POST COM COR ESCURA EXPLÍCITA #0B0F19 -->
+                  <h3 class="m-0 leading-snug" style="font-family: var(--font-heading);">
+                    <a
+                      href={postUrl(post.slug)}
+                      class="post-title-link font-extrabold text-decoration-none d-block line-clamp-2"
+                      style="font-size: 1.05rem; color: #0B0F19; line-height: 1.35; transition: color 0.2s ease;"
+                    >
+                      {post.data.title}
+                    </a>
                   </h3>
 
                   <!-- TEMPO RELATIVO -->
@@ -158,3 +164,9 @@ function getRelativeTime(date: Date) {
   </section>
 
 </BaseLayout>
+
+<style>
+  .post-title-link:hover {
+    color: var(--walker-accent, #2222D3) !important;
+  }
+</style>
