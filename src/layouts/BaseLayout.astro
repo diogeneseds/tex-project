@@ -362,32 +362,6 @@ const socialImage = image?.startsWith("http")
   </head>
 
   <body class={bodyClass}>
-    <!-- preloader -->
-    <div id="preloader">
-      <div class="book">
-        <div class="inner">
-          <div class="left"></div>
-          <div class="middle"></div>
-          <div class="right"></div>
-        </div>
-        <ul>
-          <li></li><li></li><li></li><li></li><li></li><li></li>
-          <li></li><li></li><li></li><li></li><li></li><li></li>
-          <li></li><li></li><li></li><li></li><li></li><li></li>
-        </ul>
-      </div>
-    </div>
-    <script is:inline>
-      setTimeout(function() {
-        var p = document.getElementById('preloader');
-        if (p && p.style.display !== 'none') {
-          p.style.opacity = '0';
-          p.style.transition = 'opacity 0.4s ease';
-          setTimeout(function() { p.style.display = 'none'; }, 400);
-        }
-      }, 1500);
-    </script>
-
     <!-- site wrapper -->
     <div class="site-wrapper">
       <div class="main-overlay"></div>
