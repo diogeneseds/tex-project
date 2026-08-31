@@ -101,12 +101,12 @@ function getMerchantInfo(merchant?: string, url?: string) {
             <div class="card h-100 border rounded-4 shadow-sm p-3 d-flex flex-column justify-content-between bg-white offer-card">
               
               <div>
-                <!-- IMAGEM DO PRODUTO EM CONTAINER BRANCO ARREDONDADO -->
-                <div class="product-img-box position-relative rounded-3 p-3 mb-3 bg-light text-center flex-shrink-0 d-flex align-items-center justify-content-center" style="height: 180px;">
+                <!-- IMAGEM DO PRODUTO RETÂNGULO PAISAGEM (280x159px) -->
+                <div class="product-img-box position-relative rounded-4 overflow-hidden mb-3 bg-slate-900 text-center flex-shrink-0 d-flex align-items-center justify-content-center" style="height: 159px;">
                   <img
-                    src={product.image || '/images/default-product.jpg'}
+                    src={product.image || '/images/default-product.svg'}
                     alt={product.title}
-                    class="mw-100 mh-100 object-fit-contain"
+                    class="w-100 h-100 object-fit-cover"
                     loading="lazy"
                   />
                 </div>
