@@ -1,0 +1,189 @@
+---
+import { readData } from '../../lib/readData';
+
+const customShorts = readData('shorts.json', []) as any[];
+
+const defaultShorts = [
+  {
+    id: 1,
+    title: 'Novo Short em Breve: Dicas Rápidas de Tecnologia & IA',
+    badge: 'TECEXTREME',
+    thumbnail: '/images/short-placeholder.svg',
+    url: '#'
+  },
+  {
+    id: 2,
+    title: 'Novo Short em Breve: Setup Gamer & Dicas de Hardware',
+    badge: 'TECEXTREME',
+    thumbnail: '/images/short-placeholder.svg',
+    url: '#'
+  },
+  {
+    id: 3,
+    title: 'Novo Short em Breve: Truques Secretos no Windows e Celular',
+    badge: 'TECEXTREME',
+    thumbnail: '/images/short-placeholder.svg',
+    url: '#'
+  },
+  {
+    id: 4,
+    title: 'Novo Short em Breve: Análise Expressa dos Melhores Gadgets',
+    badge: 'TECEXTREME',
+    thumbnail: '/images/short-placeholder.svg',
+    url: '#'
+  }
+];
+
+const shortsList = customShorts.length > 0 ? customShorts : defaultShorts;
+---
+
+<div class="widget-shorts-container bg-white rounded-4 border border-slate-200 p-3.5 shadow-sm">
+  <!-- CABEÇALHO COM ÍCONE DE PLAY AZUL, TÍTULO "Shorts" E SETAS DE NAVEGAÇÃO -->
+  <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+    <div class="d-flex align-items-center gap-2">
+      <!-- Ícone Azul de Play -->
+      <div
+        class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-sm"
+        style="width: 30px; height: 30px; background-color: var(--walker-accent, #2222D3);"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </div>
+      <h3 class="h6 fw-extrabold m-0 text-dark" style="font-family: var(--font-heading);">
+        Shorts
+      </h3>
+    </div>
+
+    <!-- SETAS DE NAVEGAÇÃO DO CARROSSEL DE SHORTS -->
+    <div class="d-flex align-items-center gap-1.5">
+      <button
+        type="button"
+        class="shorts-prev-btn border-0 rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm"
+        aria-label="Anterior"
+        style="width: 28px; height: 28px; background-color: #0F172A; font-size: 10px; transition: all 0.2s;"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        type="button"
+        class="shorts-next-btn border-0 rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm"
+        aria-label="Próximo"
+        style="width: 28px; height: 28px; background-color: #0F172A; font-size: 10px; transition: all 0.2s;"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- CARROSSEL VERTICAL DE SHORTS (ASPECT 9:16) -->
+  <div class="shorts-wrapper overflow-x-auto pb-2 position-relative">
+    <div class="d-flex gap-3 shorts-slider" style="scroll-behavior: smooth;">
+      {shortsList.map((short) => (
+        <a
+          href={short.url || '#'}
+          class="short-card-item group position-relative rounded-4 overflow-hidden text-decoration-none shadow-sm flex-shrink-0 d-block bg-slate-900"
+          style="width: 190px; height: 330px;"
+        >
+          <!-- THUMBNAIL DO SHORT (IMAGEM FALLBACK SVG 9:16) -->
+          <img
+            src={short.thumbnail || '/images/short-placeholder.svg'}
+            alt={short.title}
+            class="w-100 h-100 object-fit-cover short-img"
+            loading="lazy"
+          />
+
+          <!-- GRADIENTE ESCURO INFERIOR PARA LEITURA DO TÍTULO -->
+          <div class="position-absolute inset-0 bg-short-gradient"></div>
+
+          <!-- BOTÃO DE PLAY NO CENTRO -->
+          <div class="position-absolute top-50 start-50 translate-middle z-2">
+            <div
+              class="short-play-btn rounded-circle text-white d-flex align-items-center justify-content-center shadow"
+              style="width: 42px; height: 42px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); border: 1.5px solid rgba(255, 255, 255, 0.3); transition: all 0.3s ease;"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 2px;">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- INFORMAÇÕES SOBREPOSTAS NO RODAPÉ DO CARD -->
+          <div class="position-absolute bottom-0 start-0 end-0 p-3 z-2 text-white">
+            <span
+              class="badge px-2 py-0.5 fw-bold text-white rounded-1 shadow-xs mb-1.5 d-inline-block text-uppercase"
+              style="background-color: var(--walker-accent, #2222D3); font-size: 8.5px; letter-spacing: 0.5px;"
+            >
+              {short.badge || 'TECEXTREME'}
+            </span>
+            <h4
+              class="short-title text-white font-extrabold m-0 line-clamp-3 leading-tight"
+              style="font-size: 0.825rem; font-family: var(--font-heading); text-shadow: 0 2px 4px rgba(0,0,0,0.8);"
+            >
+              {short.title}
+            </h4>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <!-- PONTOS DE NAVEGAÇÃO DO SLIDER (DOTS) -->
+  <div class="d-flex align-items-center justify-content-center gap-1.5 pt-2">
+    <span class="shorts-dot rounded-pill active" style="width: 16px; height: 5px; background-color: var(--walker-accent, #2222D3);"></span>
+    <span class="shorts-dot rounded-circle" style="width: 6px; height: 6px; background-color: #CBD5E1;"></span>
+    <span class="shorts-dot rounded-circle" style="width: 6px; height: 6px; background-color: #CBD5E1;"></span>
+    <span class="shorts-dot rounded-circle" style="width: 6px; height: 6px; background-color: #CBD5E1;"></span>
+  </div>
+</div>
+
+<style>
+  .bg-short-gradient {
+    background: linear-gradient(to top, rgba(11, 15, 25, 0.92) 0%, rgba(11, 15, 25, 0.4) 50%, transparent 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .short-img {
+    transition: transform 0.35s ease;
+  }
+  .short-card-item:hover .short-img {
+    transform: scale(1.06);
+  }
+  .short-card-item:hover .short-play-btn {
+    background-color: var(--walker-accent, #2222D3) !important;
+    border-color: #70EDED !important;
+    transform: scale(1.12);
+    box-shadow: 0 0 16px rgba(34, 34, 211, 0.6) !important;
+  }
+  .shorts-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+  .shorts-wrapper {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .shorts-prev-btn:hover,
+  .shorts-next-btn:hover {
+    background-color: var(--walker-accent, #2222D3) !important;
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    var wrapper = document.querySelector('.shorts-wrapper');
+    var prevBtn = document.querySelector('.shorts-prev-btn');
+    var nextBtn = document.querySelector('.shorts-next-btn');
+
+    if (wrapper && prevBtn && nextBtn) {
+      prevBtn.addEventListener('click', function() {
+        wrapper.scrollBy({ left: -200, behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', function() {
+        wrapper.scrollBy({ left: 200, behavior: 'smooth' });
+      });
+    }
+  });
+</script>

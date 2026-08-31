@@ -1,30 +1,24 @@
 ---
-import WidgetAbout from './WidgetAbout.astro';
+import WidgetAd from './WidgetAd.astro';
 import WidgetPopularPosts from './WidgetPopularPosts.astro';
-import WidgetCategories from './WidgetCategories.astro';
-import WidgetNewsletter from './WidgetNewsletter.astro';
+import WidgetShorts from './WidgetShorts.astro';
 import { getCollection } from 'astro:content';
-import { readData } from '../../lib/readData';
-const categoriesData = readData('categories.json', []);
 
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
-
-const finalCategoriesData = Array.isArray(categoriesData) ? categoriesData : [];
-const categoriesFromPosts = [...new Set(posts.map(post => post.data.category).filter(Boolean))];
-const allCategories = finalCategoriesData.length > 0 ? finalCategoriesData : categoriesFromPosts;
-
-// Contagem de posts por categoria
-const categoryCounts = allCategories.map(cat => ({
-  name: cat,
-  count: posts.filter(p => (p.data.category || '').toLowerCase() === cat.toLowerCase()).length
-}));
 ---
 
 <aside class="space-y-6 sticky top-24">
-  <WidgetAbout />
-  <WidgetPopularPosts posts={posts.slice(0, 5)} />
-  <WidgetCategories categories={categoryCounts} />
-  <WidgetNewsletter />
+  <!-- 1. PUBLICIDADE -->
+  <WidgetAd slotId="sidebar-top-ad" />
+
+  <!-- 2. MAIS LIDAS (POSTS ALEATÓRIOS GERADOS AUTOMATICAMENTE) -->
+  <WidgetPopularPosts posts={posts} title="Mais lidas" />
+
+  <!-- 3. PUBLICIDADE NOVAMENTE -->
+  <WidgetAd slotId="sidebar-middle-ad" />
+
+  <!-- 4. SHORTS (COM FALLBACK TECEXTREME) -->
+  <WidgetShorts />
 </aside>

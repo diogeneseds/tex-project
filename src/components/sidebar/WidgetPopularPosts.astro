@@ -1,5 +1,5 @@
 ---
-import PostCardList from '../ui/PostCardList.astro';
+import { postUrl } from '../../lib/blogRoutes';
 
 interface Post {
   slug: string;
@@ -13,27 +13,90 @@ interface Post {
 
 interface Props {
   posts: Post[];
+  title?: string;
 }
 
-const { posts } = Astro.props;
+const { posts = [], title = 'Mais lidas' } = Astro.props;
+
+// Algoritmo determinístico/aleatório para selecionar 5 posts variados para o usuário
+const shuffledPosts = [...posts].sort(() => 0.5 - Math.random());
+const displayPosts = shuffledPosts.slice(0, 5);
 ---
 
-<div class="bg-white rounded-2xl border border-gray-200 p-5">
-  <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-4 pb-3 border-b border-gray-100 relative">
-    Posts Populares
-    <span class="absolute bottom-0 left-0 w-12 h-0.5 bg-primary-500"></span>
-  </h3>
+<div
+  class="widget-mais-lidas rounded-4 p-4 shadow-md text-white position-relative overflow-hidden"
+  style="background: linear-gradient(135deg, #1E2BEE 0%, #2222D3 60%, #1515A3 100%);"
+>
+  <!-- CABEÇALHO COM ÍCONE DE MEDALHA / ESTRELA E TÍTULO -->
+  <div class="d-flex align-items-center gap-2.5 mb-4 pb-3 border-bottom border-white-20">
+    <div
+      class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+      style="width: 34px; height: 34px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);"
+    >
+      <!-- Ícone de Estrela / Troféu -->
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="text-white">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+    </div>
+    <h3 class="h5 fw-extrabold m-0 text-white" style="font-family: var(--font-heading);">
+      {title}
+    </h3>
+  </div>
 
-  <div class="space-y-1">
-    {posts.map((post, i) => (
-      <PostCardList
-        title={post.data.title}
-        slug={post.slug}
-        heroImage={post.data.heroImage}
-        category={post.data.category}
-        pubDate={post.data.pubDate}
-        index={i}
-      />
+  <!-- LISTA RANKADA DE 1 A 5 -->
+  <div class="d-flex flex-column gap-3 mb-4">
+    {displayPosts.map((post, index) => (
+      <a
+        href={postUrl(post.slug)}
+        class="popular-item-link d-flex align-items-start gap-3 text-decoration-none py-1 group"
+      >
+        <!-- BADGE NUMÉRICO CIRCULAR CIANO (1 a 5) -->
+        <span
+          class="badge-rank rounded-circle d-flex align-items-center justify-content-center fw-extrabold flex-shrink-0 shadow-sm"
+          style="width: 26px; height: 26px; background-color: #70EDED; color: #0B0F19; font-size: 13px;"
+        >
+          {index + 1}
+        </span>
+
+        <!-- TÍTULO DO POST -->
+        <div class="flex-grow-1 min-w-0">
+          <h4
+            class="popular-post-title text-white font-bold text-sm m-0 line-clamp-2 leading-snug"
+            style="font-size: 0.885rem; line-height: 1.35; transition: color 0.2s;"
+          >
+            {post.data.title}
+          </h4>
+        </div>
+      </a>
     ))}
   </div>
+
+  <!-- BOTÃO MAIS NOTÍCIAS POPULARES -->
+  <a
+    href="/blog"
+    class="btn-mais-populares btn w-100 rounded-3 fw-bold text-center text-decoration-none shadow-sm py-2.5 d-block"
+    style="background-color: #ffffff; color: #2222D3; font-size: 0.9rem; transition: all 0.2s ease;"
+  >
+    Mais notícias populares
+  </a>
 </div>
+
+<style>
+  .border-white-20 {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+  .popular-item-link:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding-bottom: 0.75rem;
+  }
+  .popular-item-link:hover .popular-post-title {
+    color: #70EDED !important;
+    text-decoration: underline;
+  }
+  .btn-mais-populares:hover {
+    background-color: #f8fafc !important;
+    color: #1010a0 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+</style>
