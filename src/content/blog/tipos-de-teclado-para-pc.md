@@ -3,6 +3,7 @@ title: "Tipos de Teclado para PC: Suas Diferenças e Qual Escolher"
 description: "Confira o guia completo sobre periféricos! Entenda as diferenças entre teclados de membrana, mecânicos, ópticos e magnéticos para fazer a melhor compra."
 pubDate: 2026-02-10
 category: "Computadores e Hardware"
+tags: ["Hardware", "Periféricos", "Teclados", "Dicas"]
 heroImage: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1200&q=80"
 author: "admin"
 ---

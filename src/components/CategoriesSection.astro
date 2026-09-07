@@ -120,18 +120,24 @@ function categorySlug(cat: string) {
 </style>
 
 <script is:inline>
-  document.addEventListener('DOMContentLoaded', function() {
-    var wrapper = document.querySelector('.cat-grid-wrapper');
-    var prevBtn = document.querySelector('.cat-scroll-prev');
-    var nextBtn = document.querySelector('.cat-scroll-next');
-    
-    if (wrapper && prevBtn && nextBtn) {
-      prevBtn.addEventListener('click', function() {
-        wrapper.scrollBy({ left: -250, behavior: 'smooth' });
-      });
-      nextBtn.addEventListener('click', function() {
-        wrapper.scrollBy({ left: 250, behavior: 'smooth' });
-      });
-    }
-  });
+  function initCategoriesCarousel() {
+    var sections = document.querySelectorAll('.continue-por-aqui');
+    sections.forEach(function(sec) {
+      var wrapper = sec.querySelector('.cat-grid-wrapper');
+      var prevBtn = sec.querySelector('.cat-scroll-prev');
+      var nextBtn = sec.querySelector('.cat-scroll-next');
+      if (wrapper && prevBtn && nextBtn && !prevBtn.dataset.init) {
+        prevBtn.dataset.init = 'true';
+        prevBtn.addEventListener('click', function() {
+          wrapper.scrollBy({ left: -250, behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('click', function() {
+          wrapper.scrollBy({ left: 250, behavior: 'smooth' });
+        });
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initCategoriesCarousel);
+  document.addEventListener('astro:page-load', initCategoriesCarousel);
 </script>

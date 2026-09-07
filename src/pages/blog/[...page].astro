@@ -1,0 +1,223 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import CategoriesSection from '../../components/CategoriesSection.astro';
+import { readData } from '../../lib/readData';
+import { postUrl } from '../../lib/blogRoutes';
+import { getCollection } from 'astro:content';
+import type { GetStaticPathsOptions } from 'astro';
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const posts = await getCollection('blog');
+  const sortedPosts = posts.sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+
+  return paginate(sortedPosts, { pageSize: 12 });
+}
+
+const { page } = Astro.props;
+const siteConfig = readData('siteConfig.json');
+
+function getRelativeTime(date: Date) {
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diffInSeconds < 3600) {
+    const mins = Math.floor(diffInSeconds / 60) || 1;
+    return `Há ${mins} minuto${mins > 1 ? 's' : ''}`;
+  }
+  if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `Há ${hours} hora${hours > 1 ? 's' : ''}`;
+  }
+  const days = Math.floor(diffInSeconds / 86400);
+  if (days < 30) {
+    return `Há ${days} dia${days > 1 ? 's' : ''}`;
+  }
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+---
+
+<BaseLayout
+  title={`Últimas notícias${page.currentPage > 1 ? ` - Página ${page.currentPage}` : ''} - ${siteConfig.name}`}
+  description="Não perca nenhuma atualização do mundo tech. Notícias, reviews, tutoriais e análises completas."
+>
+
+  <section class="container-xl py-6">
+    
+    <!-- CABEÇALHO DO BLOG: H1 + DESCRIÇÃO -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-3 mb-6 border-b border-slate-200">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#0B0F19] m-0" style="font-family: var(--font-heading);">
+        Últimas notícias
+      </h1>
+      <p class="text-sm text-slate-500 m-0 text-left sm:text-right max-w-lg leading-relaxed">
+        Não perca nenhuma atualização do mundo tech
+      </p>
+    </div>
+
+    <!-- DOBRA PRINCIPAL: LISTAGEM DE POSTS (ESQUERDA) + SIDEBAR (DIREITA) -->
+    <div class="flex flex-col lg:flex-row gap-8 my-6">
+
+      <!-- LISTAGEM DE POSTS (COLUNA DA ESQUERDA) -->
+      <div class="flex-1 min-w-0">
+        
+        {page.data.length === 0 && (
+          <div class="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-500">
+            <p>Nenhum artigo publicado no momento.</p>
+          </div>
+        )}
+
+        <!-- LISTA HORIZONTAL DE CARDS DE POSTS (ESTILO TECMUNDO) -->
+        <div class="flex flex-col divide-y divide-slate-100">
+          {page.data.map((post: any) => (
+            <article class="relative py-4 first:pt-0 last:pb-0 group">
+              <div class="flex flex-row gap-4 sm:gap-5 items-center min-h-[138px]">
+                <!-- THUMBNAIL DO POST (ESQUERDA - 172x138px) -->
+                <a href={postUrl(post.slug)} class="block relative w-[172px] h-[138px] flex-shrink-0 overflow-hidden rounded-2xl bg-slate-100">
+                  {post.data.heroImage ? (
+                    <img
+                      src={post.data.heroImage}
+                      alt={post.data.title}
+                      loading="lazy"
+                      width="400"
+                      height="225"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div class="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs">
+                      TecExtreme
+                    </div>
+                  )}
+                </a>
+
+                <!-- DETALHES DO POST (DIREITA) -->
+                <div class="flex-1 min-w-0 flex flex-col justify-center">
+                  <!-- CATEGORIA COM SQUARE DE COR -->
+                  {post.data.category && (
+                    <div class="flex items-center gap-1.5 mb-1.5">
+                      <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#2222D3]">
+                        {post.data.category}
+                      </span>
+                      <span class="w-1.5 h-1.5 rounded-xs bg-[#2222D3] inline-block"></span>
+                    </div>
+                  )}
+
+                  <!-- TÍTULO DO POST -->
+                  <h2 class="m-0 leading-snug" style="font-family: var(--font-heading);">
+                    <a
+                      href={postUrl(post.slug)}
+                      class="post-title-link font-extrabold text-decoration-none d-block line-clamp-2"
+                      style="font-size: 1.05rem; color: #0B0F19; line-height: 1.35; transition: color 0.2s ease;"
+                    >
+                      {post.data.title}
+                    </a>
+                  </h2>
+
+                  <!-- TEMPO RELATIVO -->
+                  <span class="text-xs text-slate-400 mt-2 block">
+                    {getRelativeTime(post.data.pubDate)}
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <!-- BARRA DE PAGINAÇÃO NUMÉRICA (ESTILO TECMUNDO - ABAIXO DA LISTAGEM DE POSTS, DENTRO DA COLUNA DA ESQUERDA) -->
+        {page.lastPage > 1 && (
+          <nav class="flex items-center justify-center gap-1.5 mt-10 pt-6 border-t border-slate-200 text-sm font-semibold" aria-label="Navegação de Páginas">
+            
+            <!-- BOTÃO ANTERIOR -->
+            {page.url.prev ? (
+              <a
+                href={page.url.prev === '/blog/1' ? '/blog' : page.url.prev}
+                class="px-3 py-2 rounded-lg text-[#2222D3] hover:bg-slate-100 transition-colors flex items-center gap-1 text-decoration-none"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>Anterior</span>
+              </a>
+            ) : (
+              <span class="px-3 py-2 rounded-lg text-slate-300 flex items-center gap-1 cursor-not-allowed">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>Anterior</span>
+              </span>
+            )}
+
+            <!-- NÚMEROS DAS PÁGINAS -->
+            {Array.from({ length: page.lastPage }, (_, i) => i + 1).map((pageNum) => {
+              const isCurrent = pageNum === page.currentPage;
+              const pageUrl = pageNum === 1 ? '/blog' : `/blog/${pageNum}`;
+
+              if (
+                page.lastPage > 7 &&
+                pageNum !== 1 &&
+                pageNum !== page.lastPage &&
+                Math.abs(pageNum - page.currentPage) > 2
+              ) {
+                if (pageNum === 2 && page.currentPage > 4) {
+                  return <span class="px-2 text-slate-400">...</span>;
+                }
+                if (pageNum === page.lastPage - 1 && page.currentPage < page.lastPage - 3) {
+                  return <span class="px-2 text-slate-400">...</span>;
+                }
+                return null;
+              }
+
+              return (
+                <a
+                  href={pageUrl}
+                  class={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors text-decoration-none ${
+                    isCurrent
+                      ? 'bg-[#2222D3] text-white font-bold'
+                      : 'text-slate-700 hover:bg-slate-100'
+                  }`}
+                  aria-current={isCurrent ? 'page' : undefined}
+                >
+                  {pageNum}
+                </a>
+              );
+            })}
+
+            <!-- BOTÃO PRÓXIMO -->
+            {page.url.next ? (
+              <a
+                href={page.url.next}
+                class="px-3 py-2 rounded-lg text-[#2222D3] hover:bg-slate-100 transition-colors flex items-center gap-1 text-decoration-none"
+              >
+                <span>Próximo</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </a>
+            ) : (
+              <span class="px-3 py-2 rounded-lg text-slate-300 flex items-center gap-1 cursor-not-allowed">
+                <span>Próximo</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </span>
+            )}
+
+          </nav>
+        )}
+
+      </div>
+
+      <!-- SIDEBAR PADRÃO DA HOME (380PX) -->
+      <aside class="w-full lg:w-[380px] flex-shrink-0">
+        <Sidebar />
+      </aside>
+
+    </div>
+
+    <!-- SEÇÃO CONTINUE POR AQUI (CATEGORIAS) -->
+    <div class="mt-12 pt-6 border-t border-slate-200">
+      <CategoriesSection />
+    </div>
+  </section>
+
+</BaseLayout>

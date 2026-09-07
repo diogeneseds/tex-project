@@ -4,6 +4,7 @@ description: "Descubra o passo a passo para criar um blog que atrai leitores, ge
 pubDate: 2026-03-20
 heroImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&h=630&fit=crop"
 category: "Blogging"
+tags: ["Blogging", "Tutorial", "Marketing Digital", "Criação de Conteúdo"]
 author: "author-1"
 ---
 

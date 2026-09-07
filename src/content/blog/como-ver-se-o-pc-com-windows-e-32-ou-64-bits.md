@@ -3,6 +3,7 @@ title: "Como Ver se o PC com Windows é 32 ou 64 Bits em Poucos Passos"
 description: "Aprenda a identificar de forma rápida e descomplicada a arquitetura do seu sistema operacional Windows 10 ou 11."
 pubDate: 2026-02-05
 category: "Dicas e Tutoriais"
+tags: ["Windows", "Hardware", "Tutorial", "Dicas"]
 heroImage: "https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=1200&q=80"
 author: "admin"
 ---

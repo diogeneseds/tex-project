@@ -1,0 +1,307 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Sidebar from '../../../components/Sidebar.astro';
+import CategoriesSection from '../../../components/CategoriesSection.astro';
+import { readData } from '../../../lib/readData';
+import { postUrl } from '../../../lib/blogRoutes';
+import { getCollection } from 'astro:content';
+import type { GetStaticPathsOptions } from 'astro';
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const posts = await getCollection('blog');
+  
+  // Coleta todas as tags únicas de todos os posts
+  const allTagsMap = new Map<string, string>(); // slug -> name
+  posts.forEach(post => {
+    const tags = post.data.tags || [];
+    tags.forEach((t: string) => {
+      const slug = t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+      if (slug && !allTagsMap.has(slug)) {
+        allTagsMap.set(slug, t);
+      }
+    });
+  });
+
+  const sortedPosts = posts.sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+
+  return Array.from(allTagsMap.entries()).flatMap(([slug, tagName]) => {
+    const tagPosts = sortedPosts.filter(p =>
+      (p.data.tags || []).some((t: string) =>
+        t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') === slug
+      )
+    );
+
+    return paginate(tagPosts, {
+      params: { tag: slug },
+      props: { tagName, tagSlug: slug },
+      pageSize: 12,
+    });
+  });
+}
+
+const { page, tagName, tagSlug } = Astro.props;
+const siteConfig = readData('siteConfig.json');
+const tagDescription = `Artigos, notícias e novidades sobre ${tagName} no ${siteConfig.name}.`;
+
+const isFirstPage = page.currentPage === 1;
+const topThreePosts = isFirstPage ? page.data.slice(0, 3) : [];
+const listPosts = isFirstPage ? page.data.slice(3) : page.data;
+
+function getRelativeTime(date: Date) {
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diffInSeconds < 3600) {
+    const mins = Math.floor(diffInSeconds / 60) || 1;
+    return `Há ${mins} minuto${mins > 1 ? 's' : ''}`;
+  }
+  if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `Há ${hours} hora${hours > 1 ? 's' : ''}`;
+  }
+  const days = Math.floor(diffInSeconds / 86400);
+  if (days < 30) {
+    return `Há ${days} dia${days > 1 ? 's' : ''}`;
+  }
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+---
+
+<BaseLayout
+  title={`#${tagName}${page.currentPage > 1 ? ` - Página ${page.currentPage}` : ''} - ${siteConfig.name}`}
+  description={tagDescription}
+>
+
+  <section class="container-xl py-6">
+    
+    <!-- CABEÇALHO DA TAG: H1 + DESCRIÇÃO -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-3 mb-6 border-b border-slate-200">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#0B0F19] m-0" style="font-family: var(--font-heading);">
+        #{tagName}
+      </h1>
+      <p class="text-sm text-slate-500 m-0 text-left sm:text-right max-w-lg leading-relaxed">
+        {tagDescription}
+      </p>
+    </div>
+
+    <!-- 3 CARDS DESTAQUE (APENAS NA PÁGINA 1) -->
+    {isFirstPage && topThreePosts.length > 0 && (
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+        {topThreePosts.map((post: any) => (
+          <article class="group relative h-[260px] sm:h-[280px] rounded-2xl overflow-hidden shadow-sm bg-slate-900">
+            <a href={postUrl(post.slug)} class="block w-full h-full text-decoration-none">
+              <img
+                src={post.data.heroImage || '/images/default-hero.jpg'}
+                alt={post.data.title}
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div
+                class="absolute inset-0 p-4 flex flex-col justify-end text-white"
+                style="background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);"
+              >
+                <div class="flex items-center gap-1.5 mb-1.5 uppercase font-extrabold text-[11px] tracking-wider">
+                  <span>#{tagName}</span>
+                  <span class="w-1.5 h-1.5 bg-white inline-block"></span>
+                </div>
+                <h3
+                  class="m-0 font-extrabold text-white leading-snug line-clamp-3 text-base sm:text-lg"
+                  style="font-family: var(--font-heading);"
+                >
+                  {post.data.title}
+                </h3>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    )}
+
+    <!-- SEGUNDA DOBRA: LISTAGEM DE POSTS (ESQUERDA) + SIDEBAR (DIREITA) -->
+    <div class="flex flex-col lg:flex-row gap-8 my-6">
+
+      <!-- LISTAGEM PRINCIPAL DE POSTS DA TAG -->
+      <div class="flex-1 min-w-0">
+        
+        <!-- CABEÇALHO COM ÍCONE DE RSS -->
+        <div class="flex items-center gap-2.5 mb-6 pb-3 border-b border-slate-200">
+          <div class="text-[#2222D3] flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 11a9 9 0 0 1 9 9" />
+              <path d="M4 4a16 16 0 0 1 16 16" />
+              <circle cx="5" cy="19" r="1" fill="currentColor" />
+            </svg>
+          </div>
+          <h2 class="h5 fw-extrabold m-0 text-dark" style="font-family: var(--font-heading); color: #0B0F19;">
+            Mais sobre <span class="text-[#2222D3]">#{tagName}</span>
+          </h2>
+        </div>
+
+        {page.data.length === 0 && (
+          <div class="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-500">
+            <p>Nenhum artigo publicado com esta tag ainda.</p>
+          </div>
+        )}
+
+        <!-- LISTA HORIZONTAL DE CARDS DE POSTS -->
+        <div class="flex flex-col divide-y divide-slate-100">
+          {listPosts.map((post: any) => (
+            <article class="relative py-4 first:pt-0 last:pb-0 group">
+              <div class="flex flex-row gap-4 sm:gap-5 items-center min-h-[138px]">
+                <!-- THUMBNAIL DO POST -->
+                <a href={postUrl(post.slug)} class="block relative w-[172px] h-[138px] flex-shrink-0 overflow-hidden rounded-2xl bg-slate-100">
+                  {post.data.heroImage ? (
+                    <img
+                      src={post.data.heroImage}
+                      alt={post.data.title}
+                      loading="lazy"
+                      width="400"
+                      height="225"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div class="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs">
+                      TecExtreme
+                    </div>
+                  )}
+                </a>
+
+                <!-- DETALHES DO POST -->
+                <div class="flex-1 min-w-0 flex flex-col justify-center">
+                  {post.data.category && (
+                    <div class="flex items-center gap-1.5 mb-1.5">
+                      <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#2222D3]">
+                        {post.data.category}
+                      </span>
+                      <span class="w-1.5 h-1.5 rounded-xs bg-[#2222D3] inline-block"></span>
+                    </div>
+                  )}
+
+                  <!-- TÍTULO DO POST -->
+                  <h3 class="m-0 leading-snug" style="font-family: var(--font-heading);">
+                    <a
+                      href={postUrl(post.slug)}
+                      class="post-title-link font-extrabold text-decoration-none d-block line-clamp-2"
+                      style="font-size: 1.05rem; color: #0B0F19; line-height: 1.35; transition: color 0.2s ease;"
+                    >
+                      {post.data.title}
+                    </a>
+                  </h3>
+
+                  <!-- TEMPO RELATIVO -->
+                  <span class="text-xs text-slate-400 mt-2 block">
+                    {getRelativeTime(post.data.pubDate)}
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <!-- BARRA DE PAGINAÇÃO NUMÉRICA DO TECMUNDO -->
+        {page.lastPage > 1 && (
+          <nav class="flex items-center justify-center gap-1.5 mt-10 pt-6 border-t border-slate-200 text-sm font-semibold" aria-label="Navegação de Páginas">
+            
+            <!-- BOTÃO ANTERIOR -->
+            {page.url.prev ? (
+              <a
+                href={page.url.prev === `/tag/${tagSlug}/1` ? `/tag/${tagSlug}` : page.url.prev}
+                class="px-3 py-2 rounded-lg text-[#2222D3] hover:bg-slate-100 transition-colors flex items-center gap-1 text-decoration-none"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>Anterior</span>
+              </a>
+            ) : (
+              <span class="px-3 py-2 rounded-lg text-slate-300 flex items-center gap-1 cursor-not-allowed">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>Anterior</span>
+              </span>
+            )}
+
+            <!-- NÚMEROS DAS PÁGINAS -->
+            {Array.from({ length: page.lastPage }, (_, i) => i + 1).map((pageNum) => {
+              const isCurrent = pageNum === page.currentPage;
+              const pageUrl = pageNum === 1
+                ? `/tag/${tagSlug}`
+                : `/tag/${tagSlug}/${pageNum}`;
+
+              if (
+                page.lastPage > 7 &&
+                pageNum !== 1 &&
+                pageNum !== page.lastPage &&
+                Math.abs(pageNum - page.currentPage) > 2
+              ) {
+                if (pageNum === 2 && page.currentPage > 4) {
+                  return <span class="px-2 text-slate-400">...</span>;
+                }
+                if (pageNum === page.lastPage - 1 && page.currentPage < page.lastPage - 3) {
+                  return <span class="px-2 text-slate-400">...</span>;
+                }
+                return null;
+              }
+
+              return (
+                <a
+                  href={pageUrl}
+                  class={`w-9 h-9 rounded-lg flex items-center justify-center text-decoration-none transition-all ${
+                    isCurrent
+                      ? 'bg-[#2222D3] text-white font-extrabold shadow-sm'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-[#2222D3]'
+                  }`}
+                >
+                  {pageNum}
+                </a>
+              );
+            })}
+
+            <!-- BOTÃO PRÓXIMO -->
+            {page.url.next ? (
+              <a
+                href={page.url.next}
+                class="px-3 py-2 rounded-lg text-[#2222D3] hover:bg-slate-100 transition-colors flex items-center gap-1 text-decoration-none"
+              >
+                <span>Próximo</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </a>
+            ) : (
+              <span class="px-3 py-2 rounded-lg text-slate-300 flex items-center gap-1 cursor-not-allowed">
+                <span>Próximo</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </span>
+            )}
+
+          </nav>
+        )}
+
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside class="w-full lg:w-[380px] flex-shrink-0">
+        <Sidebar />
+      </aside>
+
+    </div>
+
+    <!-- SEÇÃO CONTINUE POR AQUI (CATEGORIAS) -->
+    <div class="mt-12 pt-6 border-t border-slate-200">
+      <CategoriesSection />
+    </div>
+
+  </section>
+
+</BaseLayout>
+
+<style>
+  .post-title-link:hover {
+    color: var(--walker-accent, #2222D3) !important;
+  }
+</style>

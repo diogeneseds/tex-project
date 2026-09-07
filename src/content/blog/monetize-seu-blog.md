@@ -4,6 +4,7 @@ description: "Aprenda as principais estratégias para transformar seu blog em um
 pubDate: 2026-03-15
 heroImage: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200&h=630&fit=crop"
 category: "Monetização"
+tags: ["Blogging", "Monetização", "Renda Extra", "Marketing Digital"]
 author: "author-1"
 ---
 

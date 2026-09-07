@@ -3,6 +3,7 @@ title: "Os Jogos Mais Esperados do Ano e as Novas Tecnologias de Renderização"
 description: "Confira os lançamentos mais aguardados para PC e Consoles e saiba como o Ray Tracing em tempo real e IA estão transformando os games."
 pubDate: 2026-02-01
 category: "Jogos"
+tags: ["Games", "Hardware", "Lançamentos", "Tecnologia"]
 heroImage: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80"
 author: "admin"
 ---

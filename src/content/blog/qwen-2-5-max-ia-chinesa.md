@@ -3,6 +3,7 @@ title: "Qwen 2.5-MAX: Nova IA Chinesa que Cria Imagens, Vídeos e Muito Mais"
 description: "Descubra o Qwen 2.5-MAX, a IA chinesa de alta performance capaz de criar imagens, vídeos e textos com altíssima precisão. Saiba como usar!"
 pubDate: 2026-02-15
 category: "Inteligência Artificial"
+tags: ["Inteligência Artificial", "Alibaba", "Qwen", "Tecnologia"]
 heroImage: "https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=1200&q=80"
 author: "admin"
 ---
