@@ -3,6 +3,8 @@ import { readData } from "../lib/readData";
 import { getCollection } from "astro:content";
 import HeadPlugins from "../plugins/_slots/HeadPlugins.astro";
 import BodyEndPlugins from "../plugins/_slots/BodyEndPlugins.astro";
+import Footer from "../components/layout/Footer.astro";
+import BackToTop from "../components/layout/BackToTop.astro";
 import "../styles/global.css";
 
 const siteConfig = readData("siteConfig.json");
@@ -523,167 +525,14 @@ const socialImage = image?.startsWith("http")
       <!-- PAGE CONTENT -->
       <slot />
 
-      <!-- instagram feed -->
-      {
-        siteConfig.social?.instagram && (
-          <div class="instagram">
-            <div class="container-xl">
-              <a
-                href={siteConfig.social.instagram}
-                class="btn btn-default btn-instagram"
-                target="_blank"
-                rel="noopener"
-              >
-                @
-                {siteConfig.social.instagram
-                  .replace("https://instagram.com/", "")
-                  .replace("https://www.instagram.com/", "")}{" "}
-                no Instagram
-              </a>
-              <div class="instagram-feed d-flex flex-wrap">
-                <div class="insta-item col-sm-2 col-6 col-md-2">
-                  <a href={siteConfig.social.instagram}>
-                    <img
-                      src="https://picsum.photos/seed/insta1/300/300"
-                      alt="instagram"
-                    />
-                  </a>
-                </div>
-                <div class="insta-item col-sm-2 col-6 col-md-2">
-                  <a href={siteConfig.social.instagram}>
-                    <img
-                      src="https://picsum.photos/seed/insta2/300/300"
-                      alt="instagram"
-                    />
-                  </a>
-                </div>
-                <div class="insta-item col-sm-2 col-6 col-md-2">
-                  <a href={siteConfig.social.instagram}>
-                    <img
-                      src="https://picsum.photos/seed/insta3/300/300"
-                      alt="instagram"
-                    />
-                  </a>
-                </div>
-                <div class="insta-item col-sm-2 col-6 col-md-2">
-                  <a href={siteConfig.social.instagram}>
-                    <img
-                      src="https://picsum.photos/seed/insta4/300/300"
-                      alt="instagram"
-                    />
-                  </a>
-                </div>
-                <div class="insta-item col-sm-2 col-6 col-md-2">
-                  <a href={siteConfig.social.instagram}>
-                    <img
-                      src="https://picsum.photos/seed/insta5/300/300"
-                      alt="instagram"
-                    />
-                  </a>
-                </div>
-                <div class="insta-item col-sm-2 col-6 col-md-2">
-                  <a href={siteConfig.social.instagram}>
-                    <img
-                      src="https://picsum.photos/seed/insta6/300/300"
-                      alt="instagram"
-                    />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }
 
-      <!-- footer -->
-      <footer>
-        <div class="container-xl">
-          <div class="footer-inner">
-            <div class="row d-flex align-items-center gy-4">
-              <div class="col-md-4">
-                <span class="copyright"
-                  >© {new Date().getFullYear()} {siteConfig.name}.</span
-                >
-              </div>
-              <div class="col-md-4 text-center">
-                <ul class="social-icons list-unstyled list-inline mb-0">
-                  {
-                    siteConfig.social?.facebook && (
-                      <li class="list-inline-item">
-                        <a
-                          href={siteConfig.social.facebook}
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          <i class="fab fa-facebook-f" />
-                        </a>
-                      </li>
-                    )
-                  }
-                  {
-                    siteConfig.social?.twitter && (
-                      <li class="list-inline-item">
-                        <a
-                          href={siteConfig.social.twitter}
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          <i class="fab fa-twitter" />
-                        </a>
-                      </li>
-                    )
-                  }
-                  {
-                    siteConfig.social?.instagram && (
-                      <li class="list-inline-item">
-                        <a
-                          href={siteConfig.social.instagram}
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          <i class="fab fa-instagram" />
-                        </a>
-                      </li>
-                    )
-                  }
-                  {
-                    siteConfig.social?.pinterest && (
-                      <li class="list-inline-item">
-                        <a
-                          href={siteConfig.social.pinterest}
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          <i class="fab fa-pinterest" />
-                        </a>
-                      </li>
-                    )
-                  }
-                  {
-                    siteConfig.social?.youtube && (
-                      <li class="list-inline-item">
-                        <a
-                          href={siteConfig.social.youtube}
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          <i class="fab fa-youtube" />
-                        </a>
-                      </li>
-                    )
-                  }
-                </ul>
-              </div>
-              <div class="col-md-4">
-                <a href="#" id="return-to-top" class="float-md-end"
-                  ><i class="icon-arrow-up"></i>Voltar ao Topo</a
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+
+      <!-- footer estilo TecMundo -->
+      <Footer />
     </div><!-- end site wrapper -->
+
+    <!-- Botão Voltar ao Topo Flutuante -->
+    <BackToTop />
 
     <!-- search popup -->
     <div class="search-popup">

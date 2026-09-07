@@ -1,0 +1,159 @@
+---
+import { readData } from "../lib/readData";
+
+const siteConfig = readData("siteConfig.json");
+const mailchimpUrl = siteConfig.newsletter?.mailchimpActionUrl || "";
+const whatsappUrl =
+  siteConfig.social?.whatsappChannel || "https://whatsapp.com/channel/";
+---
+
+<section class="mt-8 mb-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- CARD 1: NEWSLETTER MAILCHIMP -->
+    <div
+      class="relative overflow-hidden rounded-2xl bg-[#0B0F19] text-white p-6 sm:p-8 border border-slate-800 shadow-xl flex flex-col justify-between group"
+    >
+      <!-- Glow decorativo de fundo -->
+      <div
+        class="absolute -top-24 -right-24 w-48 h-48 bg-[#2222D3]/30 rounded-full blur-3xl group-hover:bg-[#2222D3]/50 transition-all duration-500 pointer-events-none"
+      >
+      </div>
+
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-11 h-11 rounded-xl bg-[#2222D3]/20 border border-[#2222D3]/40 flex items-center justify-center text-[#70EDED]"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              ></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+          </div>
+          <div>
+            <span
+              class="text-[11px] font-extrabold uppercase tracking-widest text-[#70EDED]"
+              >Boletim Gratuito</span
+            >
+            <h3
+              class="text-xl font-black text-white m-0 leading-tight"
+              style="font-family: var(--font-heading);"
+            >
+              Newsletter TecExtreme
+            </h3>
+          </div>
+        </div>
+
+        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+          Receba os principais destaques da semana sobre inteligência
+          artificial, hardware, gadgets e guia de compras direto no seu e-mail.
+        </p>
+      </div>
+
+      <!-- FORMULÁRIO MAILCHIMP -->
+      <form
+        action={mailchimpUrl || "#"}
+        method="POST"
+        target={mailchimpUrl ? "_blank" : "_self"}
+        id="newsletter-form"
+        class="flex flex-col sm:flex-row gap-2.5"
+      >
+        <div class="relative flex-1">
+          <input
+            type="email"
+            name="EMAIL"
+            required
+            placeholder="Digite seu melhor e-mail..."
+            class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-[#70EDED] transition-colors"
+          />
+        </div>
+        <button
+          type="submit"
+          class="px-6 py-3 rounded-xl bg-[#2222D3] hover:bg-blue-600 text-white font-extrabold text-sm transition-all shadow-md flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
+          style="font-family: var(--font-heading);"
+        >
+          <span>Assinar</span>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- CARD 2: CANAL DO WHATSAPP -->
+    <div
+      class="relative overflow-hidden rounded-2xl bg-[#0B0F19] text-white p-6 sm:p-8 border border-slate-800 shadow-xl flex flex-col justify-between group"
+    >
+      <!-- Glow verde de fundo -->
+      <div
+        class="absolute -top-24 -right-24 w-48 h-48 bg-[#25D366]/20 rounded-full blur-3xl group-hover:bg-[#25D366]/35 transition-all duration-500 pointer-events-none"
+      >
+      </div>
+
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-11 h-11 rounded-xl bg-[#25D366]/15 border border-[#25D366]/40 flex items-center justify-center text-[#25D366]"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.763.459 3.483 1.332 5.001L2 22l5.148-1.348c1.464.798 3.116 1.218 4.86 1.219h.004c5.506 0 9.99-4.478 9.99-9.985 0-2.667-1.037-5.176-2.922-7.062A9.923 9.923 0 0 0 12.012 2zm.004 18.232h-.003a8.318 8.318 0 0 1-4.24-1.164l-.304-.181-3.15.825.84-3.067-.198-.316a8.29 8.29 0 0 1-1.272-4.345c0-4.577 3.725-8.302 8.305-8.302 2.217 0 4.301.864 5.867 2.432a8.258 8.258 0 0 1 2.43 5.87c-.002 4.578-3.727 8.304-8.305 8.304zm4.557-6.223c-.25-.125-1.477-.728-1.706-.811-.229-.083-.396-.125-.562.125-.166.25-.646.811-.792.978-.146.166-.292.187-.542.062-.25-.125-1.055-.389-2.01-1.24-.743-.663-1.245-1.481-1.391-1.731-.146-.25-.015-.385.11-.51.112-.112.25-.292.375-.438.125-.146.166-.25.25-.417.083-.166.042-.313-.021-.438-.063-.125-.563-1.354-.771-1.854-.203-.487-.41-.421-.562-.429-.143-.007-.308-.009-.474-.009s-.438.063-.667.313c-.229.25-.875.854-.875 2.083s.896 2.417 1.021 2.583c.125.167 1.763 2.693 4.272 3.777.597.258 1.064.412 1.428.527.6.19 1.146.163 1.578.099.482-.072 1.477-.604 1.686-1.188.208-.583.208-1.083.146-1.188-.063-.104-.229-.167-.479-.292z"
+              ></path>
+            </svg>
+          </div>
+          <div>
+            <span
+              class="text-[11px] font-extrabold uppercase tracking-widest text-[#25D366]"
+              >Comunidade Oficial</span
+            >
+            <h3
+              class="text-xl font-black text-white m-0 leading-tight"
+              style="font-family: var(--font-heading);"
+            >
+              Canal no WhatsApp
+            </h3>
+          </div>
+        </div>
+
+        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+          Entre no nosso canal oficial para receber alertas de notícias em tempo
+          real, novos reviews e novidades de tecnologia direto no celular.
+        </p>
+      </div>
+
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="w-full py-3.5 px-6 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-black text-sm transition-all shadow-md flex items-center justify-center gap-2.5 text-decoration-none cursor-pointer"
+        style="font-family: var(--font-heading);"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.763.459 3.483 1.332 5.001L2 22l5.148-1.348c1.464.798 3.116 1.218 4.86 1.219h.004c5.506 0 9.99-4.478 9.99-9.985 0-2.667-1.037-5.176-2.922-7.062A9.923 9.923 0 0 0 12.012 2zm.004 18.232h-.003a8.318 8.318 0 0 1-4.24-1.164l-.304-.181-3.15.825.84-3.067-.198-.316a8.29 8.29 0 0 1-1.272-4.345c0-4.577 3.725-8.302 8.305-8.302 2.217 0 4.301.864 5.867 2.432a8.258 8.258 0 0 1 2.43 5.87c-.002 4.578-3.727 8.304-8.305 8.304zm4.557-6.223c-.25-.125-1.477-.728-1.706-.811-.229-.083-.396-.125-.562.125-.166.25-.646.811-.792.978-.146.166-.292.187-.542.062-.25-.125-1.055-.389-2.01-1.24-.743-.663-1.245-1.481-1.391-1.731-.146-.25-.015-.385.11-.51.112-.112.25-.292.375-.438.125-.146.166-.25.25-.417.083-.166.042-.313-.021-.438-.063-.125-.563-1.354-.771-1.854-.203-.487-.41-.421-.562-.429-.143-.007-.308-.009-.474-.009s-.438.063-.667.313c-.229.25-.875.854-.875 2.083s.896 2.417 1.021 2.583c.125.167 1.763 2.693 4.272 3.777.597.258 1.064.412 1.428.527.6.19 1.146.163 1.578.099.482-.072 1.477-.604 1.686-1.188.208-.583.208-1.083.146-1.188-.063-.104-.229-.167-.479-.292z"
+          ></path>
+        </svg>
+        <span>Entrar no Canal do WhatsApp</span>
+      </a>
+    </div>
+  </div>
+</section>

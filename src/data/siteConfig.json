@@ -17,7 +17,11 @@
     "instagram": "https://www.instagram.com/tecextreme/",
     "twitter": "https://x.com/tecextreme",
     "pinterest": "",
-    "youtube": "https://www.youtube.com/@tecextreme.tecnologia"
+    "youtube": "https://www.youtube.com/@tecextreme.tecnologia",
+    "whatsappChannel": "https://whatsapp.com/channel/"
+  },
+  "newsletter": {
+    "mailchimpActionUrl": ""
   },
   "contact": {
     "email": "contato@tecextreme.com.br",
