@@ -2,7 +2,7 @@
 title: "Como Criar um Blog de Sucesso do Zero"
 description: "Descubra o passo a passo para criar um blog que atrai leitores, gera valor e pode se tornar uma fonte de renda."
 pubDate: 2026-03-20
-heroImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&h=630&fit=crop"
+heroImage: "../../assets/blog/dia-do-programador-curiosidades-e-dicas.webp"
 category: "Blogging"
 tags: ["Blogging", "Tutorial", "Marketing Digital", "Criação de Conteúdo"]
 author: "author-1"

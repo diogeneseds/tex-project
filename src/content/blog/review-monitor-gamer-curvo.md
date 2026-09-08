@@ -4,7 +4,7 @@ description: "Análise completa do novo monitor curvo OLED 240Hz. Testamos contr
 pubDate: 2026-02-18
 category: "Review"
 tags: ["Review", "Hardware", "Monitor Gamer", "OLED"]
-heroImage: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=1200&q=80"
+heroImage: "../../assets/blog/Placa-de-Video-O-Que-Saber-para-a-Melhor-Escolha.jpg"
 author: "admin"
 ---
 

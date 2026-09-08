@@ -2,7 +2,7 @@
 title: "SEO para Iniciantes: Guia Completo para Aparecer no Google"
 description: "Entenda os fundamentos de SEO e aprenda técnicas práticas para melhorar o posicionamento do seu blog nos mecanismos de busca."
 pubDate: 2026-03-10
-heroImage: "https://images.unsplash.com/photo-1432888622747-4eb9a8f2c293?w=1200&h=630&fit=crop"
+heroImage: "../../assets/blog/gerador-de-imagem-por-ia-01.jpg"
 category: "SEO"
 tags: ["SEO", "Google", "Blogging", "Marketing Digital"]
 author: "author-1"

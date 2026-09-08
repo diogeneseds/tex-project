@@ -1,10 +1,10 @@
 ---
-import { postUrl } from '../../lib/blogRoutes';
+import { postUrl, getImageSrc } from '../../lib/blogRoutes';
 
 interface Props {
   title: string;
   slug: string;
-  heroImage?: string;
+  heroImage?: any;
   category?: string;
   pubDate: Date;
   index?: number;
@@ -25,7 +25,7 @@ const { title, slug, heroImage, category, pubDate, index } = Astro.props;
   <a href={postUrl(slug)} class="flex-shrink-0 w-16 h-14 rounded-lg overflow-hidden bg-gray-100">
     {heroImage ? (
       <img
-        src={heroImage}
+        src={getImageSrc(heroImage)}
         alt={title}
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
       />

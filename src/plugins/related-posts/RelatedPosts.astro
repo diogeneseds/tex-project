@@ -62,7 +62,7 @@ if (enabled && category) {
                 <div class="thumb top-rounded">
                   <a href={`/blog/${post.slug}`}>
                     <div class="inner">
-                      <img src={post.data.heroImage} alt={post.data.title} loading="lazy" />
+                      <img src={typeof post.data.heroImage === 'string' ? post.data.heroImage : (post.data.heroImage as any)?.src} alt={post.data.title} loading="lazy" />
                     </div>
                   </a>
                   {postCategory && (

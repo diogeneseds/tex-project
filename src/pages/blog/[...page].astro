@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Sidebar from '../../components/Sidebar.astro';
 import CategoriesSection from '../../components/CategoriesSection.astro';
 import { readData } from '../../lib/readData';
-import { postUrl } from '../../lib/blogRoutes';
+import { postUrl, getImageSrc } from '../../lib/blogRoutes';
 import { getCollection } from 'astro:content';
 import type { GetStaticPathsOptions } from 'astro';
 
@@ -76,7 +76,7 @@ function getRelativeTime(date: Date) {
                 <a href={postUrl(post.slug)} class="block relative w-[172px] h-[138px] flex-shrink-0 overflow-hidden rounded-2xl bg-slate-100">
                   {post.data.heroImage ? (
                     <img
-                      src={post.data.heroImage}
+                      src={getImageSrc(post.data.heroImage)}
                       alt={post.data.title}
                       loading="lazy"
                       width="400"

@@ -95,10 +95,11 @@ const {
 const formattedTitle =
   title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
 const siteUrl = siteConfig.url || Astro.url.origin;
-const socialImage = image?.startsWith("http")
-  ? image
-  : image
-    ? new URL(image, siteUrl).toString()
+const imageStr = typeof image === 'string' ? image : (image as any)?.src || '';
+const socialImage = imageStr.startsWith("http")
+  ? imageStr
+  : imageStr
+    ? new URL(imageStr, siteUrl).toString()
     : "";
 ---
 

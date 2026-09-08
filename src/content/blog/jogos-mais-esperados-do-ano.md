@@ -4,7 +4,7 @@ description: "Confira os lançamentos mais aguardados para PC e Consoles e saiba
 pubDate: 2026-02-01
 category: "Jogos"
 tags: ["Games", "Hardware", "Lançamentos", "Tecnologia"]
-heroImage: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80"
+heroImage: "../../assets/blog/melhores-jogos-de-tiro-para-pc-5-titulos-para-testar-v01.jpg"
 author: "admin"
 ---
 

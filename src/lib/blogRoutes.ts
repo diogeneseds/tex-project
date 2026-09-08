@@ -11,3 +11,11 @@ export function blogIndexUrl(): string {
     const prefix = readData('siteConfig.json').blogPrefix ?? '';
     return prefix || '/blog';
 }
+
+/** Helper para obter a URL da imagem (suporta string ou ImageMetadata do Astro) */
+export function getImageSrc(image: any): string {
+    if (!image) return '';
+    if (typeof image === 'string') return image;
+    if (typeof image === 'object' && image !== null && 'src' in image) return image.src;
+    return String(image);
+}

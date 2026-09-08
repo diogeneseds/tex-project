@@ -2,7 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Sidebar from '../../../components/Sidebar.astro';
 import { readData } from '../../../lib/readData';
-import { postUrl } from '../../../lib/blogRoutes';
+import { postUrl, getImageSrc } from '../../../lib/blogRoutes';
 import { getCollection } from 'astro:content';
 import type { GetStaticPathsOptions } from 'astro';
 
@@ -92,7 +92,7 @@ function getRelativeTime(date: Date) {
           <article class="group relative h-[260px] sm:h-[280px] rounded-2xl overflow-hidden shadow-sm bg-slate-900">
             <a href={postUrl(post.slug)} class="block w-full h-full text-decoration-none">
               <img
-                src={post.data.heroImage || '/images/default-hero.jpg'}
+                src={getImageSrc(post.data.heroImage) || '/images/default-hero.jpg'}
                 alt={post.data.title}
                 loading="lazy"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -153,7 +153,7 @@ function getRelativeTime(date: Date) {
                 <a href={postUrl(post.slug)} class="block relative w-[172px] h-[138px] flex-shrink-0 overflow-hidden rounded-2xl bg-slate-100">
                   {post.data.heroImage ? (
                     <img
-                      src={post.data.heroImage}
+                      src={getImageSrc(post.data.heroImage)}
                       alt={post.data.title}
                       loading="lazy"
                       width="400"

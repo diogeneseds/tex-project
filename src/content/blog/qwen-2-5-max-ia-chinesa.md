@@ -4,7 +4,7 @@ description: "Descubra o Qwen 2.5-MAX, a IA chinesa de alta performance capaz de
 pubDate: 2026-02-15
 category: "Inteligência Artificial"
 tags: ["Inteligência Artificial", "Alibaba", "Qwen", "Tecnologia"]
-heroImage: "https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=1200&q=80"
+heroImage: "../../assets/blog/qwen2-5-max-nova-ia-chinesa-que-faz-tudo-01.jpg"
 author: "admin"
 ---
 

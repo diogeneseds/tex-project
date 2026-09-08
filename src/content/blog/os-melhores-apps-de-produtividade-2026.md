@@ -4,7 +4,7 @@ description: "Descubra as ferramentas e softwares essenciais para otimizar sua r
 pubDate: 2026-02-12
 category: "Apps e Software"
 tags: ["Aplicativos", "Software", "Produtividade", "Dicas"]
-heroImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80"
+heroImage: "../../assets/blog/5-melhores-navegadores-para-pc-2025.webp"
 author: "admin"
 ---
 

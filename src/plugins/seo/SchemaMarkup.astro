@@ -42,7 +42,7 @@ const articleData = articleSchema ? {
   headline: title,
   description,
   url,
-  ...(image ? { image } : {}),
+  ...(image ? { image: typeof image === 'string' ? image : (image as any)?.src } : {}),
   ...(datePublished ? { datePublished } : {}),
   ...(dateModified ? { dateModified } : datePublished ? { dateModified: datePublished } : {}),
   author: {

@@ -22,9 +22,10 @@ const formattedTitle = title === siteConfig.name ? title : `${title} | ${siteCon
 
 // Garantir que a imagem seja uma URL absoluta para redes sociais
 const siteUrl = siteConfig.url || Astro.site || Astro.url.origin;
-const socialImage = image.startsWith('http')
-  ? image
-  : new URL(image, siteUrl).toString();
+const imageStr = typeof image === 'string' ? image : (image as any)?.src || '/og-image.jpg';
+const socialImage = imageStr.startsWith('http')
+  ? imageStr
+  : new URL(imageStr, siteUrl).toString();
 
 // Schema.org JSON-LD
 const schema = type === 'article'
