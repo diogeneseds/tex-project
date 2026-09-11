@@ -1,59 +1,50 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Sidebar from '../components/Sidebar.astro';
-import { readData } from '../lib/readData';
-const siteConfig = readData('siteConfig.json');
-const termsData = readData('terms.json');
+import { getEntry } from 'astro:content';
+
+const page = await getEntry('pages', 'termos');
+const { Content } = page ? await page.render() : { Content: null };
+const title = page?.data.title || "Termos de Uso";
+const description = page?.data.description || "Leia nossos termos de uso e condições.";
 ---
 
-<BaseLayout title={termsData.title} description={`Leia nossos ${termsData.title.toLowerCase()} e condições de uso.`}>
+<BaseLayout title={title} description={description}>
 
-  <!-- page header -->
-  <section class="page-header">
-    <div class="container-xl">
-      <div class="text-center">
-        <h1 class="mt-0 mb-2">{termsData.title}</h1>
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb justify-content-center mb-0">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{termsData.title}</li>
-          </ol>
-        </nav>
+  <section class="container-xl py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- BREADCRUMB -->
+      <nav aria-label="breadcrumb" class="flex items-center gap-2 text-xs text-slate-500 mb-4 font-semibold uppercase tracking-wider">
+        <a href="/" class="hover:text-[#2222D3] transition-colors text-decoration-none">Home</a>
+        <span class="text-slate-300">/</span>
+        <span class="text-slate-400">{title}</span>
+      </nav>
+
+      <!-- TÍTULO H1 -->
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#0B0F19] leading-tight mb-6" style="font-family: var(--font-heading);">
+        {title}
+      </h1>
+
+      <!-- CONTEÚDO RENDERIZADO DO ARQUIVO .MD -->
+      <div class="post-content">
+        {Content && <Content />}
       </div>
+
     </div>
   </section>
 
-  <!-- section main content -->
-  <section class="main-content">
-    <div class="container-xl">
-      <div class="row gy-4">
-
-        <div class="col-lg-8">
-          <div class="page-content bordered rounded padding-30">
-
-            {termsData.lastUpdated && (
-              <p class="mb-4" style="color:#8F9BAD;font-size:0.9rem;">Última atualização: {termsData.lastUpdated}</p>
-            )}
-
-            {termsData.content?.map(section => (
-              <>
-                <h4>{section.title}</h4>
-                <p>{section.text}</p>
-              </>
-            ))}
-
-            <hr class="my-4" />
-            <p>Para dúvidas sobre estes termos, entre em <a href="/contato">contato conosco</a>.</p>
-
-          </div>
-        </div>
-
-        <div class="col-lg-4">
-          <Sidebar />
-        </div>
-
-      </div>
-    </div>
-  </section>
+  <script is:inline>
+  (function() {
+    var postContent = document.querySelector('.post-content');
+    if (!postContent) return;
+    var walker = document.createTreeWalker(postContent, NodeFilter.SHOW_TEXT, null);
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue && node.nodeValue.indexOf('\u00A0') !== -1) {
+        node.nodeValue = node.nodeValue.replace(/\u00A0/g, ' ');
+      }
+    }
+  })();
+  </script>
 
 </BaseLayout>

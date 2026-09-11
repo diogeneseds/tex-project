@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+import { readData } from '../lib/readData';
+import { postUrl } from '../lib/blogRoutes';
+
+// Busca metadados e conteúdo da própria página Mapa do Site (.md)
+const page = await getEntry('pages', 'mapa-do-site');
+const { Content } = page ? await page.render() : { Content: null };
+const title = page?.data.title || "Mapa do Site";
+const description = page?.data.description || "Navegue por todas as seções, categorias e conteúdos do TecExtreme.";
+
+// 1. PÁGINAS DINÂMICAS: Lê automaticamente todas as páginas da coleção 'pages' + Home
+const allPagesEntries = await getCollection('pages');
+const sitePages = [
+  { title: 'Home', url: '/' },
+  ...allPagesEntries
+    .filter(p => p.slug !== 'mapa-do-site')
+    .map(p => ({
+      title: p.data.title,
+      url: `/${p.slug}`
+    }))
+];
+
+// 2. POSTS DINÂMICOS: Lê automaticamente todos os posts do blog
+const posts = await getCollection('blog');
+const sortedPosts = posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+
+// 3. CATEGORIAS DINÂMICAS: Lê automaticamente as categorias cadastradas e usadas nos posts
+const categoriesData = readData('categories.json', []) as string[];
+const categoriesFromPosts = posts.map(post => post.data.category).filter((c): c is string => Boolean(c));
+const allCategories = [...new Set([...(Array.isArray(categoriesData) ? categoriesData : []), ...categoriesFromPosts])];
+---
+
+<BaseLayout title={title} description={description}>
+
+  <section class="container-xl py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- BREADCRUMB -->
+      <nav aria-label="breadcrumb" class="flex items-center gap-2 text-xs text-slate-500 mb-4 font-semibold uppercase tracking-wider">
+        <a href="/" class="hover:text-[#2222D3] transition-colors text-decoration-none">Home</a>
+        <span class="text-slate-300">/</span>
+        <span class="text-slate-400">Mapa do Site</span>
+      </nav>
+
+      <!-- TÍTULO H1 -->
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#0B0F19] leading-tight mb-6" style="font-family: var(--font-heading);">
+        {title}
+      </h1>
+
+      <!-- CONTEÚDO RENDERIZADO DO ARQUIVO .MD -->
+      {Content && (
+        <div class="post-content mb-8">
+          <Content />
+        </div>
+      )}
+
+      <!-- ESTRUTURA AUTOMÁTICA DO MAPA DO SITE -->
+      <div class="space-y-8">
+
+        <!-- PÁGINAS PRINCIPAIS (AUTOMÁTICO) -->
+        <div>
+          <h3 class="text-xl font-bold text-[#0B0F19] mb-4 pb-2 border-b border-slate-200" style="font-family: var(--font-heading);">
+            Páginas Principais ({sitePages.length})
+          </h3>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 list-none p-0 m-0 text-sm">
+            {sitePages.map(p => (
+              <li>
+                <a href={p.url} class="text-[#2222D3] font-semibold hover:underline flex items-center gap-2">
+                  <span>•</span> {p.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- CATEGORIAS (AUTOMÁTICO) -->
+        <div>
+          <h3 class="text-xl font-bold text-[#0B0F19] mb-4 pb-2 border-b border-slate-200" style="font-family: var(--font-heading);">
+            Categorias ({allCategories.length})
+          </h3>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 list-none p-0 m-0 text-sm">
+            {allCategories.map((cat: string) => {
+              const catSlug = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+              return (
+                <li>
+                  <a href={`/categoria/${catSlug}`} class="text-slate-700 hover:text-[#2222D3] font-medium transition-colors flex items-center gap-2">
+                    <span class="text-[#2222D3]">📁</span> {cat}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <!-- ARTIGOS E PUBLICAÇÕES (AUTOMÁTICO) -->
+        <div>
+          <h3 class="text-xl font-bold text-[#0B0F19] mb-4 pb-2 border-b border-slate-200" style="font-family: var(--font-heading);">
+            Artigos e Publicações ({sortedPosts.length})
+          </h3>
+          <ul class="space-y-3 list-none p-0 m-0 text-sm">
+            {sortedPosts.map((post) => (
+              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-100">
+                <a href={postUrl(post.slug)} class="text-slate-800 hover:text-[#2222D3] font-medium transition-colors">
+                  {post.data.title}
+                </a>
+                <span class="text-xs text-slate-400 flex-shrink-0">
+                  {post.data.pubDate instanceof Date ? post.data.pubDate.toLocaleDateString('pt-BR') : post.data.pubDate}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <script is:inline>
+  (function() {
+    var postContent = document.querySelector('.post-content');
+    if (!postContent) return;
+    var walker = document.createTreeWalker(postContent, NodeFilter.SHOW_TEXT, null);
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue && node.nodeValue.indexOf('\u00A0') !== -1) {
+        node.nodeValue = node.nodeValue.replace(/\u00A0/g, ' ');
+      }
+    }
+  })();
+  </script>
+
+</BaseLayout>

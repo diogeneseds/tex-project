@@ -1,86 +1,95 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Sidebar from '../components/Sidebar.astro';
+import { getEntry } from 'astro:content';
 import { readData } from '../lib/readData';
+
 const siteConfig = readData('siteConfig.json');
-const contatoData = readData('contato.json');
+const page = await getEntry('pages', 'contato');
+const { Content } = page ? await page.render() : { Content: null };
+const title = page?.data.title || "Contato";
+const description = page?.data.description || "Entre em contato com a equipe do TecExtreme.";
 ---
 
-<BaseLayout
-  title={contatoData.seo?.title || "Contato"}
-  description={contatoData.seo?.description}
-  image={contatoData.seo?.image}
->
+<BaseLayout title={title} description={description}>
 
-  <section class="max-w-6xl mx-auto px-4 py-10">
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold" style="font-family: var(--font-heading);">{contatoData.hero?.title || "Contato"}</h1>
-      <nav class="text-sm text-gray-500 mt-1">
-        <a href="/" class="hover:text-gray-700">Home</a>
-        <span class="mx-2">/</span>
-        <span>Contato</span>
+  <section class="container-xl py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- BREADCRUMB -->
+      <nav aria-label="breadcrumb" class="flex items-center gap-2 text-xs text-slate-500 mb-4 font-semibold uppercase tracking-wider">
+        <a href="/" class="hover:text-[#2222D3] transition-colors text-decoration-none">Home</a>
+        <span class="text-slate-300">/</span>
+        <span class="text-slate-400">Contato</span>
       </nav>
-    </div>
 
-    <div class="flex flex-col lg:flex-row gap-8">
-      <div class="flex-1 min-w-0">
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <!-- TÍTULO H1 -->
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#0B0F19] leading-tight mb-6" style="font-family: var(--font-heading);">
+        {title}
+      </h1>
 
-          {contatoData.hero?.subtitle && (
-            <p class="text-gray-600 mb-6">{contatoData.hero.subtitle}</p>
-          )}
-
-          <!-- Contact info cards -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            {siteConfig.contact?.address && (
-              <div class="text-center p-4 bg-gray-50 rounded-lg">
-                <div class="text-2xl mb-2">📍</div>
-                <h6 class="font-semibold text-sm mb-1">{contatoData.cards?.addressLabel || "Endereço"}</h6>
-                <p class="text-xs text-gray-500">{siteConfig.contact.address}</p>
-              </div>
-            )}
-            {siteConfig.contact?.phone && (
-              <div class="text-center p-4 bg-gray-50 rounded-lg">
-                <div class="text-2xl mb-2">📞</div>
-                <h6 class="font-semibold text-sm mb-1">{contatoData.cards?.phoneLabel || "Telefone"}</h6>
-                <p class="text-xs text-gray-500">{siteConfig.contact.phone}</p>
-              </div>
-            )}
-            {siteConfig.contact?.email && (
-              <div class="text-center p-4 bg-gray-50 rounded-lg">
-                <div class="text-2xl mb-2">✉️</div>
-                <h6 class="font-semibold text-sm mb-1">E-mail</h6>
-                <a href={`mailto:${siteConfig.contact.email}`} class="text-xs text-[--color-primary]">{siteConfig.contact.email}</a>
-              </div>
-            )}
-          </div>
-
-          <hr class="my-6 border-gray-200" />
-
-          <h4 class="text-lg font-bold mb-4" style="font-family: var(--font-heading);">Envie uma Mensagem</h4>
-          <form id="contact-form" method="post" class="flex flex-col gap-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input type="text" name="InputName" placeholder="Seu nome" required
-                class="border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[--color-primary]" />
-              <input type="email" name="InputEmail" placeholder="Seu e-mail" required
-                class="border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[--color-primary]" />
-            </div>
-            <input type="text" name="InputSubject" placeholder="Assunto"
-              class="border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[--color-primary]" />
-            <textarea name="InputMessage" rows="5" placeholder="Sua mensagem..." required
-              class="border border-gray-200 rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[--color-primary]"></textarea>
-            <div>
-              <button type="submit" class="btn-primary">{contatoData.cards?.formSubmitText || "Enviar Mensagem"}</button>
-            </div>
-          </form>
-
-        </div>
+      <!-- CONTEÚDO RENDERIZADO DO ARQUIVO .MD -->
+      <div class="post-content mb-8">
+        {Content && <Content />}
       </div>
 
-      <aside class="lg:w-80 flex-shrink-0">
-        <Sidebar />
-      </aside>
+      <!-- CARDS DE CONTATO -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {siteConfig.contact?.address && (
+          <div class="text-center p-5 bg-slate-50 rounded-xl border border-slate-100">
+            <div class="text-2xl mb-2">📍</div>
+            <h4 class="font-bold text-sm text-[#0B0F19] mb-1">Endereço</h4>
+            <p class="text-xs text-slate-500 m-0">{siteConfig.contact.address}</p>
+          </div>
+        )}
+        {siteConfig.contact?.phone && (
+          <div class="text-center p-5 bg-slate-50 rounded-xl border border-slate-100">
+            <div class="text-2xl mb-2">📞</div>
+            <h4 class="font-bold text-sm text-[#0B0F19] mb-1">Telefone</h4>
+            <p class="text-xs text-slate-500 m-0">{siteConfig.contact.phone}</p>
+          </div>
+        )}
+        {siteConfig.contact?.email && (
+          <div class="text-center p-5 bg-slate-50 rounded-xl border border-slate-100">
+            <div class="text-2xl mb-2">✉️</div>
+            <h4 class="font-bold text-sm text-[#0B0F19] mb-1">E-mail</h4>
+            <a href={`mailto:${siteConfig.contact.email}`} class="text-xs text-[#2222D3] font-semibold hover:underline">{siteConfig.contact.email}</a>
+          </div>
+        )}
+      </div>
+
+      <!-- FORMULÁRIO DE CONTATO -->
+      <h3 class="text-xl font-bold text-[#0B0F19] mb-4" style="font-family: var(--font-heading);">Envie uma Mensagem</h3>
+      <form id="contact-form" method="post" class="flex flex-col gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input type="text" name="InputName" placeholder="Seu nome" required
+            class="border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2222D3] bg-white" />
+          <input type="email" name="InputEmail" placeholder="Seu e-mail" required
+            class="border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2222D3] bg-white" />
+        </div>
+        <input type="text" name="InputSubject" placeholder="Assunto"
+          class="border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2222D3] bg-white" />
+        <textarea name="InputMessage" rows="5" placeholder="Sua mensagem..." required
+          class="border border-slate-300 rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2222D3] bg-white"></textarea>
+        <div>
+          <button type="submit" class="btn-primary cursor-pointer">Enviar Mensagem</button>
+        </div>
+      </form>
+
     </div>
   </section>
+
+  <script is:inline>
+  (function() {
+    var postContent = document.querySelector('.post-content');
+    if (!postContent) return;
+    var walker = document.createTreeWalker(postContent, NodeFilter.SHOW_TEXT, null);
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue && node.nodeValue.indexOf('\u00A0') !== -1) {
+        node.nodeValue = node.nodeValue.replace(/\u00A0/g, ' ');
+      }
+    }
+  })();
+  </script>
 
 </BaseLayout>
