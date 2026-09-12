@@ -82,12 +82,12 @@ function getRelativeTime(date: Date) {
     category={post.data.category}
   />
 
-  <section class="container-xl py-6">
+  <section class="container-xl pt-4 pb-6 sm:pt-5">
     
-    <!-- HEADER DO POST - LARGURA TOTAL DA PÁGINA (ESTILO TECMUNDO) -->
-    <header class="mb-6">
+    <!-- HEADER DO POST - LARGURA TOTAL DA PÁGINA (ESTILO TECMUNDO / PANORAMA EDITORIAL) -->
+    <header class="mb-4">
       
-      <!-- BREADCRUMB -->
+      <!-- BREADCRUMB (Ajustado mb-4 para dar respiro em relação à Categoria) -->
       <nav class="flex items-center gap-2 text-xs text-slate-500 mb-4 font-semibold uppercase tracking-wider w-full overflow-hidden">
         <a href="/" class="hover:text-[#2222D3] transition-colors text-decoration-none flex-shrink-0">Home</a>
         {post.data.category && (
@@ -100,7 +100,7 @@ function getRelativeTime(date: Date) {
         <span class="text-slate-400 truncate flex-1 min-w-0">{post.data.title}</span>
       </nav>
 
-      <!-- SELO DA CATEGORIA COM QUADRADO AZUL -->
+      <!-- SELO DA CATEGORIA COM QUADRADO AZUL (Ajustado mb-2.5 para respiro do H1) -->
       {post.data.category && (
         <div class="flex items-center gap-1.5 mb-2.5">
           <span class="text-xs font-extrabold uppercase tracking-wider text-[#2222D3]">
@@ -111,35 +111,35 @@ function getRelativeTime(date: Date) {
       )}
 
       <!-- TÍTULO PRINCIPAL (H1 - LARGURA TOTAL DO CONTAINER) -->
-      <h1 class="text-3xl sm:text-4xl lg:text-[2.6rem] font-extrabold text-[#0B0F19] leading-[1.2] mb-3 max-w-5xl" style="font-family: var(--font-heading);">
+      <h1 class="text-2xl sm:text-3xl lg:text-[2.35rem] font-extrabold text-[#0B0F19] leading-[1.2] mb-2.5 max-w-5xl" style="font-family: var(--font-heading);">
         {post.data.title}
       </h1>
 
       <!-- SUBTÍTULO / DESCRIÇÃO (LINHA DE FATO - LARGURA TOTAL DO CONTAINER) -->
       {post.data.description && (
-        <p class="text-lg sm:text-xl text-slate-500 font-medium leading-relaxed mb-6 max-w-4xl">
+        <p class="text-base sm:text-lg text-slate-500 font-medium leading-relaxed mb-3 max-w-4xl">
           {post.data.description}
         </p>
       )}
 
-      <!-- BARRA COMPLETA DE AUTORIA & COMPARTILHAMENTO (ESTILO TECMUNDO) -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1 pb-4 text-xs mb-6">
+      <!-- BARRA COMPLETA DE AUTORIA & COMPARTILHAMENTO (Ajustado py-2 e mb-3 para harmonia visual) -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-2 text-xs mb-3">
         <div class="flex items-center gap-3">
           {currentAuthor.avatar ? (
-            <img src={currentAuthor.avatar} alt={currentAuthor.name} class="w-10 h-10 rounded-full object-cover shadow-sm" />
+            <img src={currentAuthor.avatar} alt={currentAuthor.name} class="w-9 h-9 rounded-full object-cover shadow-sm" width="36" height="36" loading="eager" />
           ) : (
-            <div class="w-10 h-10 rounded-full bg-[#0B0F19] text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
+            <div class="w-9 h-9 rounded-full bg-[#0B0F19] text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
               {currentAuthor.name.charAt(0)}
             </div>
           )}
           <div>
             <!-- NOME DO AUTOR (TEXTO ESCURO #0B0F19) -->
-            <div class="font-extrabold text-[#0B0F19] text-sm leading-snug">
+            <div class="font-extrabold text-[#0B0F19] text-xs sm:text-sm leading-snug">
               {currentAuthor.name}
             </div>
 
             <!-- METADADOS DE DATA E TEMPO DE LEITURA (TEXTO VISÍVEL SLATE-600 #475569) -->
-            <div class="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[#475569] font-medium text-[12px] mt-0.5">
+            <div class="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[#475569] font-medium text-[11px] sm:text-[12px] mt-0.5">
               
               <!-- DATA DE PUBLICAÇÃO COM ÍCONE DE RELÓGIO -->
               <span class="flex items-center gap-1.5" title="Data de publicação">
@@ -184,12 +184,17 @@ function getRelativeTime(date: Date) {
         <SocialShare title={post.data.title} context="header" />
       </div>
 
-      <!-- IMAGEM EM DESTAQUE DO POST EM LARGURA TOTAL DA PÁGINA (HERO IMAGE - 1000x400 FORMATO TECMUNDO) -->
+      <!-- IMAGEM EM DESTAQUE DO POST: 16:9 + max-h-[395px] (Padrão Google Discover 1200x675 + Otimizações de LCP/CLS para Core Web Vitals) -->
       {post.data.heroImage && (
-        <div class="w-full h-[320px] sm:h-[400px] lg:h-[420px] rounded-2xl overflow-hidden shadow-sm bg-slate-100 mb-2">
+        <div class="w-full aspect-[16/9] max-h-[300px] sm:max-h-[370px] lg:max-h-[395px] rounded-2xl overflow-hidden shadow-sm bg-slate-100 mb-4">
           <img
             src={getImageSrc(post.data.heroImage)}
             alt={post.data.title}
+            width="1200"
+            height="675"
+            fetchpriority="high"
+            loading="eager"
+            decoding="async"
             class="w-full h-full object-cover"
           />
         </div>
