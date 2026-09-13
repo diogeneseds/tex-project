@@ -471,6 +471,7 @@ function getRelativeTime(date: Date) {
   (function() {
     var postContent = document.querySelector('.post-content');
     if (!postContent) return;
+
     var walker = document.createTreeWalker(postContent, NodeFilter.SHOW_TEXT, null);
     var node;
     while ((node = walker.nextNode())) {
@@ -478,6 +479,47 @@ function getRelativeTime(date: Date) {
         node.nodeValue = node.nodeValue.replace(/\u00A0/g, ' ');
       }
     }
+
+    // Dynamic fallback for discrete inline TOC dropdown conversion
+    var h2s = postContent.querySelectorAll('h2, h3');
+    h2s.forEach(function(h2) {
+      if (h2.closest('details')) return;
+      var text = (h2.textContent || '').trim();
+      var lower = text.toLowerCase();
+      if (
+        lower.includes('conteúdo do post') ||
+        lower.includes('conteudo do post') ||
+        lower.includes('sumário do post') ||
+        lower.includes('sumario do post') ||
+        lower === 'índice' ||
+        lower === 'indice'
+      ) {
+        var next = h2.nextElementSibling;
+        if (next && (next.tagName === 'OL' || next.tagName === 'UL')) {
+          var details = document.createElement('details');
+          details.className = 'toc-dropdown';
+          
+          var summary = document.createElement('summary');
+          summary.className = 'toc-summary';
+          summary.innerHTML = '<span class="toc-title-text">' + text + '</span>' +
+            '<div class="toc-toggle-btn">' +
+            '<span class="toc-status-text"></span>' +
+            '<svg class="toc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />' +
+            '</svg>' +
+            '</div>';
+
+          var contentDiv = document.createElement('div');
+          contentDiv.className = 'toc-content';
+          
+          h2.parentNode.insertBefore(details, h2);
+          details.appendChild(summary);
+          details.appendChild(contentDiv);
+          contentDiv.appendChild(next);
+          h2.remove();
+        }
+      }
+    });
   })();
   </script>
 
