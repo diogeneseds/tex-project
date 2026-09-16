@@ -86,7 +86,7 @@
             "subheadline": "Junte-se a nossos leitores!"
         },
         "inline": {
-            "enabled": true,
+            "enabled": false,
             "headline": "Gostando do conteúdo?",
             "subheadline": "Receba artigos como este direto no seu e-mail.",
             "position": 3

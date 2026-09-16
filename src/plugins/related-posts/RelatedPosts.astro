@@ -2,11 +2,11 @@
 /**
  * RelatedPosts.astro — Plugin Related Posts
  *
- * Exibe posts relacionados por categoria após o author box.
- * Filtra por mesma categoria, exclui post atual, embaralha e limita.
+ * Exibe posts relacionados por categoria no mesmo estilo da listagem principal (cards horizontais).
  */
 import { getCollection } from 'astro:content';
 import { readData } from '../../lib/readData';
+import { postUrl, getImageSrc } from '../../lib/blogRoutes';
 
 interface Props {
   currentSlug: string;
@@ -19,74 +19,120 @@ const { currentSlug, category, count } = Astro.props;
 const pluginsConfig = readData('pluginsConfig.json', {}) as any;
 const relatedConfig = pluginsConfig?.relatedPosts;
 const enabled = relatedConfig?.enabled !== false;
-const maxCount = count ?? relatedConfig?.count ?? 3;
+const maxCount = count ?? relatedConfig?.count ?? 4;
 
 let relatedPosts: any[] = [];
 
-if (enabled && category) {
+if (enabled) {
   const allPosts = await getCollection('blog');
-  const filtered = allPosts.filter(p =>
+  
+  const categoryPosts = allPosts.filter(p =>
     p.slug !== currentSlug &&
     p.data.category === category &&
     !p.data.draft
   );
 
-  // Shuffle
-  for (let i = filtered.length - 1; i > 0; i--) {
+  // Embaralha posts da mesma categoria
+  for (let i = categoryPosts.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+    [categoryPosts[i], categoryPosts[j]] = [categoryPosts[j], categoryPosts[i]];
   }
 
-  relatedPosts = filtered.slice(0, maxCount);
+  relatedPosts = categoryPosts.slice(0, maxCount);
+
+  // Se a categoria tiver menos que maxCount posts, completa com posts recentes de outras categorias
+  if (relatedPosts.length < maxCount) {
+    const existingSlugs = new Set([currentSlug, ...relatedPosts.map(p => p.slug)]);
+    const recentOtherPosts = allPosts
+      .filter(p => !existingSlugs.has(p.slug) && !p.data.draft)
+      .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+    
+    relatedPosts = [...relatedPosts, ...recentOtherPosts.slice(0, maxCount - relatedPosts.length)];
+  }
 }
 ---
 
 {enabled && relatedPosts.length > 0 && (
-  <div class="related-posts-section">
-    <div class="section-header">
-      <h3 class="section-title">Artigos Relacionados</h3>
-      <img src="/images/wave.svg" class="wave" alt="wave" />
+  <section class="related-posts-section mt-10 pt-6 border-t border-slate-200">
+    
+    <!-- CABEÇALHO -->
+    <div class="flex items-center gap-2.5 mb-6 pb-3 border-b border-slate-200">
+      <h3 class="text-xl font-black text-[#0B0F19] m-0" style="font-family: var(--font-heading);">
+        Artigos Relacionados
+      </h3>
     </div>
 
-    <div class="row gy-4">
+    <!-- LISTA HORIZONTAL DE CARDS DE POSTS (ESTILO DA HOME / LISTAGEM) -->
+    <div class="flex flex-col divide-y divide-slate-100">
       {relatedPosts.map(post => {
         const postDate = post.data.pubDate instanceof Date
           ? post.data.pubDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
           : new Date(post.data.pubDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-        const postCategory = post.data.category || '';
-        const catSlug = postCategory.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        
         return (
-          <div class="col-md-4">
-            <div class="post post-grid rounded bordered">
-              {post.data.heroImage && (
-                <div class="thumb top-rounded">
-                  <a href={`/blog/${post.slug}`}>
-                    <div class="inner">
-                      <img src={typeof post.data.heroImage === 'string' ? post.data.heroImage : (post.data.heroImage as any)?.src} alt={post.data.title} loading="lazy" />
-                    </div>
-                  </a>
-                  {postCategory && (
-                    <a href={`/categoria/${catSlug}`} class="category-badge">{postCategory}</a>
-                  )}
-                </div>
-              )}
-              <div class="details clearfix">
-                <ul class="meta list-inline mb-0">
-                  <li class="list-inline-item">
-                    <a href={`/blog/${post.slug}`}>{postDate}</a>
-                  </li>
-                </ul>
-                <h4 class="title">
-                  <a href={`/blog/${post.slug}`}>{post.data.title}</a>
-                </h4>
-                {post.data.description && (
-                  <p class="post-excerpt">{post.data.description}</p>
+          <article class="relative py-4 first:pt-0 last:pb-0 group">
+            <div class="flex flex-row gap-4 sm:gap-5 items-center min-h-[120px]">
+              
+              <!-- THUMBNAIL DO POST (ESQUERDA - 172x138px) -->
+              <a href={postUrl(post.slug)} class="block relative w-[140px] sm:w-[172px] h-[105px] sm:h-[138px] flex-shrink-0 overflow-hidden rounded-2xl bg-slate-100">
+                {post.data.heroImage ? (
+                  <img
+                    src={getImageSrc(post.data.heroImage)}
+                    alt={post.data.title}
+                    loading="lazy"
+                    width="400"
+                    height="225"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div class="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs">
+                    TecExtreme
+                  </div>
                 )}
+              </a>
+
+              <!-- DETALHES DO POST (DIREITA) -->
+              <div class="flex-1 min-w-0 flex flex-col justify-center">
+                
+                <!-- CATEGORIA COM QUADRADO AZUL -->
+                {post.data.category && (
+                  <div class="flex items-center gap-1.5 mb-1.5">
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#2222D3]">
+                      {post.data.category}
+                    </span>
+                    <span class="w-1.5 h-1.5 rounded-xs bg-[#2222D3] inline-block"></span>
+                  </div>
+                )}
+
+                <!-- TÍTULO DO POST -->
+                <h4 class="m-0 leading-snug" style="font-family: var(--font-heading);">
+                  <a
+                    href={postUrl(post.slug)}
+                    class="related-post-title-link font-extrabold text-decoration-none block line-clamp-2"
+                    style="font-size: 1.05rem; color: #0B0F19; line-height: 1.35; transition: color 0.2s ease;"
+                  >
+                    {post.data.title}
+                  </a>
+                </h4>
+
+                <!-- DATA DE PUBLICAÇÃO -->
+                <span class="text-xs text-slate-400 mt-2 block">
+                  {postDate}
+                </span>
+
               </div>
+
             </div>
-          </div>
+          </article>
         );
       })}
     </div>
-  </div>
+
+  </section>
 )}
+
+<style>
+  .related-post-title-link:hover {
+    color: var(--walker-accent, #2222D3) !important;
+  }
+</style>

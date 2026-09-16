@@ -7,40 +7,56 @@ export default function CmsDashboard() {
     const [stats, setStats] = useState({ totalPosts: 0, publishedPosts: 0, draftPosts: 0, totalAuthors: 0 });
 
     useEffect(() => {
+        let isMounted = true;
         const fetchStats = async () => {
             try {
                 let tPosts = 0, pubPosts = 0, drfPosts = 0;
                 try {
                     const postData = await githubApi('list', 'src/content/blog');
-                    if (Array.isArray(postData.data)) {
-                        const mds = postData.data.filter((f: any) => f.name.endsWith('.md'));
+                    if (Array.isArray(postData?.data)) {
+                        const mds = postData.data.filter((f: any) => f.name && f.name.endsWith('.md'));
                         tPosts = mds.length;
-                        await Promise.all(mds.map(async (f: any) => {
-                            try {
-                                const text = f.content !== undefined ? f.content : (await githubApi('read', f.path)).content;
-                                const draftMatch = text ? text.match(/draft:\s*(true|false)/i) : null;
-                                if (draftMatch && draftMatch[1].toLowerCase() === 'true') drfPosts++;
-                                else pubPosts++;
-                            } catch { pubPosts++; }
-                        }));
+                        for (const f of mds) {
+                            let text = f.content;
+                            if (text === undefined && f.path) {
+                                try {
+                                    const fileRes = await githubApi('read', f.path);
+                                    text = fileRes?.content || '';
+                                } catch { text = ''; }
+                            }
+                            if (text && /draft:\s*true/i.test(text)) {
+                                drfPosts++;
+                            } else {
+                                pubPosts++;
+                            }
+                        }
                     }
-                } catch { /* ignora */ }
+                } catch (e) {
+                    console.error('Erro ao listar posts no dashboard:', e);
+                }
 
                 let tAuthors = 0;
                 try {
                     const data = await githubApi('read', 'src/data/authors.json');
-                    const parsed = JSON.parse(data?.content || "{}");
+                    const parsed = JSON.parse(data?.content || "[]");
                     tAuthors = Array.isArray(parsed) ? parsed.length : 0;
-                } catch { /* ignora */ }
+                } catch (e) {
+                    console.error('Erro ao ler autores no dashboard:', e);
+                }
 
-                setStats({ totalPosts: tPosts, publishedPosts: pubPosts, draftPosts: drfPosts, totalAuthors: tAuthors });
+                if (isMounted) {
+                    setStats({ totalPosts: tPosts, publishedPosts: pubPosts, draftPosts: drfPosts, totalAuthors: tAuthors });
+                }
             } catch (e) {
-                console.error('Erro ao puxar stats:', e);
+                console.error('Erro ao puxar estatísticas do dashboard:', e);
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
         fetchStats();
+        return () => { isMounted = false; };
     }, []);
 
     const statItems = [

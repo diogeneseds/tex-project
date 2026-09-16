@@ -8,6 +8,9 @@ export async function githubApi(action: string, path: string, extra?: Record<str
         body: JSON.stringify({ action, path, ...extra })
     });
     if (!res.ok) {
+        if (res.status === 401 && typeof window !== 'undefined') {
+            window.location.href = '/admin/login';
+        }
         const payload = await res.json().catch(() => ({}));
         throw new Error(payload.error || `Erro ${res.status} na API`);
     }

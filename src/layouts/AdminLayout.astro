@@ -26,7 +26,7 @@ const { title = 'Admin', activeSection = '' } = Astro.props;
 <body class="bg-slate-50 min-h-screen">
     <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <AdminNav client:load activeSection={activeSection} />
+        <AdminNav activeSection={activeSection} />
         <!-- Main Content -->
         <main class="flex-1 min-w-0 ml-64">
             <div class="p-8">
