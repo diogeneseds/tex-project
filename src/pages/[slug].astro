@@ -478,6 +478,50 @@ function getRelativeTime(date: Date) {
         node.nodeValue = node.nodeValue.replace(/\u00A0/g, ' ');
       }
     }
+
+    // Dynamic fallback for discrete Tecnoblog-style TOC dropdown card conversion
+    var h2s = postContent.querySelectorAll('h2, h3');
+    h2s.forEach(function(h2) {
+      if (h2.closest('details')) return;
+      var text = (h2.textContent || '').trim();
+      var lower = text.toLowerCase();
+      if (
+        lower.includes('conteúdo do post') ||
+        lower.includes('conteudo do post') ||
+        lower.includes('sumário do post') ||
+        lower.includes('sumario do post') ||
+        lower === 'índice' ||
+        lower === 'indice'
+      ) {
+        var next = h2.nextElementSibling;
+        if (next && (next.tagName === 'OL' || next.tagName === 'UL')) {
+          var details = document.createElement('details');
+          details.className = 'toc-dropdown my-4 rounded-xl border border-slate-200/80 bg-slate-50/90 overflow-hidden transition-all';
+          
+          var summary = document.createElement('summary');
+          summary.className = 'flex items-center justify-between px-3.5 py-2.5 cursor-pointer select-none font-bold text-[#0B0F19] hover:bg-slate-100/90 transition-colors';
+          summary.innerHTML = '<div class="flex items-center gap-2">' +
+            // '<span class="w-1 h-3.5 bg-[#2222D3] rounded-full inline-block"></span>' + // Barra azul pílula (|) removida para design limpo
+            '<span class="text-xs sm:text-sm font-extrabold tracking-wider uppercase text-[#0B0F19]" style="font-family: var(--font-heading);">' + text + '</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-slate-500">' +
+            '<span class="toc-status-text"></span>' +
+            '<svg class="toc-chevron w-3.5 h-3.5 transition-transform duration-200 text-slate-500 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />' +
+            '</svg>' +
+            '</div>';
+
+          var contentDiv = document.createElement('div');
+          contentDiv.className = 'toc-content px-3.5 py-3 border-t border-slate-200/70 bg-white text-xs sm:text-sm';
+          
+          h2.parentNode.insertBefore(details, h2);
+          details.appendChild(summary);
+          details.appendChild(contentDiv);
+          contentDiv.appendChild(next);
+          h2.remove();
+        }
+      }
+    });
   })();
   </script>
 
