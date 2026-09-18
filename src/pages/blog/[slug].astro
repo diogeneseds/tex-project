@@ -489,6 +489,8 @@ function getRelativeTime(date: Date) {
       var lower = text.toLowerCase();
       if (
         lower.includes('conteúdo do post') ||
+        lower.includes('conteúdo') ||
+        lower.includes('conteudo') ||
         lower.includes('conteudo do post') ||
         lower.includes('sumário do post') ||
         lower.includes('sumario do post') ||
@@ -503,7 +505,7 @@ function getRelativeTime(date: Date) {
           var summary = document.createElement('summary');
           summary.className = 'flex items-center justify-between px-3.5 py-2.5 cursor-pointer select-none font-bold text-[#0B0F19] hover:bg-slate-100/90 transition-colors';
           summary.innerHTML = '<div class="flex items-center gap-2">' +
-            // '<span class="w-1 h-3.5 bg-[#2222D3] rounded-full inline-block"></span>' + // Barra azul pílula (|) removida para design limpo
+            // REMOVIDO: Pipe/barra azul (|) que ficava ao lado de CONTEÚDO DO POST...
             '<span class="text-xs sm:text-sm font-extrabold tracking-wider uppercase text-[#0B0F19]" style="font-family: var(--font-heading);">' + text + '</span>' +
             '</div>' +
             '<div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-slate-500">' +

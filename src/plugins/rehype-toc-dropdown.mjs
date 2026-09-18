@@ -55,8 +55,7 @@ export function rehypeTocDropdown() {
                   tagName: 'div',
                   properties: { className: ['flex', 'items-center', 'gap-2'] },
                   children: [
-                    // DETALHE VISUAL: Barra azul pílula (|) removida a pedido para design mais limpo.
-                    // Para reativar, inclua: { type: 'element', tagName: 'span', properties: { className: ['w-1', 'h-3.5', 'bg-[#2222D3]', 'rounded-full', 'inline-block'] } },
+                    // REMOVIDO: Pipe/barra azul visual (|) ao lado de "CONTEÚDO DO POST..." removido a pedido do usuário.
                     {
                       type: 'element',
                       tagName: 'span',

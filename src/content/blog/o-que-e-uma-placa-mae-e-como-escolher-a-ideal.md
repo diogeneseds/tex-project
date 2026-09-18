@@ -16,22 +16,23 @@ A escolha da **placa-mãe** é um passo crucial na montagem ou atualização de 
 
 Neste artigo, vamos explorar como escolher a placa-mãe ideal para suas necessidades, desmistificando algumas ideias comuns e destacando os pontos mais importantes a serem considerados.
 
-## Conteúdo
+## Conteúdo do post...
 
-1. [O Que é uma Placa-Mãe?](#o-que-e-uma-placa-mae)
-2. [Desempenho e Preço: O Que Realmente Importa?](#desempenho-e-preco-o-que-realmente-importa)
-    1. [Funcionalidades que Aumentam o Custo](#funcionalidades-que-aumentam-o-custo)
-3. [Compatibilidade: O Fator Decisivo](#compatibilidade-o-fator-decisivo)
-4. [Onboard e Offboard: O Que Significa?](#onboard-e-offboard-o-que-significa)
-5. [Placa-mãe: A Evolução da Tecnologia](#placa-mae-a-evolucao-da-tecnologia)
-6. [Conclusão](#conclusao)
-7. [Perguntas Frequentes sobre Placa-Mãe](#perguntas-frequentes-sobre-placa-m-e)
-    1. [O que é a placa-mãe?](#o-que-a-placa-m-e-)
-    2. [Quais as principais características de uma placa-mãe?](#quais-as-principais-caracter-sticas-de-uma-placa-m-e-)
-    3. [Quais são os principais componentes da placa-mãe?](#quais-s-o-os-principais-componentes-da-placa-m-e-)
-    4. [Quais os 4 tipos de placa-mãe?](#quais-os-4-tipos-de-placa-m-e-)
-    5. [O que faz uma placa-mãe ser boa?](#o-que-faz-uma-placa-m-e-ser-boa-)
-8. [Principais Pontos do Post](#principais-pontos-do-post)
+- [Conteúdo do post...](#conteúdo-do-post)
+- [O Que é uma Placa-Mãe?](#o-que-é-uma-placa-mãe)
+- [Desempenho e Preço: O Que Realmente Importa?](#desempenho-e-preço-o-que-realmente-importa)
+  - [Funcionalidades que Aumentam o Custo](#funcionalidades-que-aumentam-o-custo)
+- [Compatibilidade: O Fator Decisivo](#compatibilidade-o-fator-decisivo)
+- [Onboard e Offboard: O Que Significa?](#onboard-e-offboard-o-que-significa)
+- [Placa-mãe: A Evolução da Tecnologia](#placa-mãe-a-evolução-da-tecnologia)
+- [Conclusão](#conclusão)
+- [Perguntas Frequentes sobre Placa-Mãe](#perguntas-frequentes-sobre-placa-mãe)
+  - [O que é a placa-mãe?](#o-que-é-a-placa-mãe)
+  - [Quais as principais características de uma placa-mãe?](#quais-as-principais-características-de-uma-placa-mãe)
+  - [Quais são os principais componentes da placa-mãe?](#quais-são-os-principais-componentes-da-placa-mãe)
+  - [Quais os 4 tipos de placa-mãe?](#quais-os-4-tipos-de-placa-mãe)
+  - [O que faz uma placa-mãe ser boa?](#o-que-faz-uma-placa-mãe-ser-boa)
+- [Principais Pontos do Post](#principais-pontos-do-post)
 
 - **[SSD ou HD: entenda as diferenças e saiba qual o melhor](https://tecextreme.com.br/ssd-ou-hd-entenda-as-diferencas-e-qual-o-melhor/)**
 
