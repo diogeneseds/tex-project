@@ -9,8 +9,16 @@ const menuItems: any[] = readData('menu.json', { items: [] }).items || [];
 const posts = await getCollection('blog');
 const categoriesFromPosts = [...new Set(posts.map(post => post.data.category).filter(Boolean))];
 
-const finalCategoriesData = Array.isArray(categoriesData) ? categoriesData : [];
-const allCategories = finalCategoriesData.length > 0 ? finalCategoriesData : categoriesFromPosts;
+const rawCategories = Array.isArray(categoriesData) && categoriesData.length > 0 ? categoriesData : categoriesFromPosts;
+const allCategories = rawCategories.map((c: any) => {
+  if (typeof c === 'string') {
+    return { name: c, slug: c.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') };
+  }
+  return {
+    name: c?.name || '',
+    slug: c?.slug || (c?.name ? c.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') : '')
+  };
+}).filter(c => Boolean(c.name));
 ---
 
 <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
@@ -44,10 +52,10 @@ const allCategories = finalCategoriesData.length > 0 ? finalCategoriesData : cat
                   </a>
                   {allCategories.map((cat) => (
                     <a
-                      href={`/categoria/${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                      href={`/categoria/${cat.slug}`}
                       class="block px-4 py-2 text-sm text-slate-600 hover:bg-gray-50 hover:text-primary-500 transition-colors"
                     >
-                      {cat}
+                      {cat.name}
                     </a>
                   ))}
                 </div>

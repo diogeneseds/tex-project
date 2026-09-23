@@ -9,8 +9,16 @@ const partnersData = readData('partners.json', []) as Array<{ name: string; url:
 
 const posts = await getCollection('blog');
 const categoriesFromPosts = [...new Set(posts.map(post => post.data.category).filter(Boolean))];
-const finalCategoriesData = Array.isArray(categoriesData) ? categoriesData : [];
-const allCategories = finalCategoriesData.length > 0 ? finalCategoriesData : categoriesFromPosts;
+const rawCategories = Array.isArray(categoriesData) && categoriesData.length > 0 ? categoriesData : categoriesFromPosts;
+const allCategories = rawCategories.map((c: any) => {
+  if (typeof c === 'string') {
+    return { name: c, slug: c.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') };
+  }
+  return {
+    name: c?.name || '',
+    slug: c?.slug || (c?.name ? c.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') : '')
+  };
+}).filter(c => Boolean(c.name));
 
 const currentYear = new Date().getFullYear();
 const footerLogo = '/logo-tecextreme-header.svg';
@@ -53,10 +61,10 @@ const footerLogo = '/logo-tecextreme-header.svg';
           {allCategories.slice(0, 4).map((cat) => (
             <li>
               <a
-                href={`/categoria/${cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-')}`}
+                href={`/categoria/${cat.slug}`}
                 class="text-slate-300 hover:text-[#70EDED] transition-colors text-decoration-none d-block"
               >
-                {cat}
+                {cat.name}
               </a>
             </li>
           ))}
@@ -72,10 +80,10 @@ const footerLogo = '/logo-tecextreme-header.svg';
           {allCategories.slice(4, 9).map((cat) => (
             <li>
               <a
-                href={`/categoria/${cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-')}`}
+                href={`/categoria/${cat.slug}`}
                 class="text-slate-300 hover:text-[#70EDED] transition-colors text-decoration-none d-block"
               >
-                {cat}
+                {cat.name}
               </a>
             </li>
           ))}

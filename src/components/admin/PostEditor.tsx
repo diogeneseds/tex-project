@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Save, AlertCircle, Loader2, ArrowLeft, Image as ImageIcon, Eye, Edit3 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Save, AlertCircle, Loader2, ArrowLeft, Image as ImageIcon, Eye, Edit3, ListTree } from 'lucide-react';
 import { marked } from 'marked';
 import { triggerToast } from './CmsToaster';
 import { githubApi } from '../../lib/adminApi';
@@ -20,6 +20,37 @@ export default function PostEditor({ filePath }: PostEditorProps) {
     const [isPreview, setIsPreview] = useState(false);
     const [pendingUploads, setPendingUploads] = useState<Record<string, File>>({});
     const [QuillEditor, setQuillEditor] = useState<any>(null);
+    const quillRef = useRef<any>(null);
+
+    const handleInsertToc = () => {
+        if (post.content.includes('[toc]') || post.content.includes('[ez-toc]')) {
+            triggerToast('O shortcode [toc] já está no conteúdo do artigo.', 'warning');
+            return;
+        }
+
+        let inserted = false;
+        try {
+            const editor = quillRef.current?.getEditor ? quillRef.current.getEditor() : (quillRef.current?.editor || null);
+            if (editor) {
+                const range = editor.getSelection(true);
+                const index = (range && typeof range.index === 'number') ? range.index : editor.getLength();
+                editor.insertText(index, '[toc]\n');
+                editor.setSelection(index + 6);
+                inserted = true;
+            }
+        } catch (e) {
+            console.error('Erro ao inserir [toc] no cursor:', e);
+        }
+
+        if (!inserted) {
+            setPost(p => ({
+                ...p,
+                content: p.content ? `${p.content}<p>[toc]</p>` : '<p>[toc]</p>'
+            }));
+        }
+
+        triggerToast('Shortcode [toc] inserido no cursor!', 'success');
+    };
 
     const formatDateForInput = (dateStr: string) => {
         try {
@@ -31,8 +62,32 @@ export default function PostEditor({ filePath }: PostEditorProps) {
 
     const [post, setPost] = useState({
         title: '', slug: '', description: '', pubDate: new Date().toISOString().split('T')[0],
-        heroImage: '', category: '', author: '', draft: false, content: ''
+        updatedDate: '', heroImage: '', category: '', tags: [] as string[], author: '', draft: false, content: ''
     });
+    const [tagInput, setTagInput] = useState('');
+    const [availableTags, setAvailableTags] = useState<string[]>([]);
+
+    const addTag = (tagName: string) => {
+        const trimmed = tagName.trim().replace(/^#/, '');
+        if (!trimmed) return;
+        if (post.tags.some(t => t.toLowerCase() === trimmed.toLowerCase())) {
+            setTagInput('');
+            return;
+        }
+        setPost(p => ({ ...p, tags: [...p.tags, trimmed] }));
+        setTagInput('');
+    };
+
+    const removeTag = (tagName: string) => {
+        setPost(p => ({ ...p, tags: p.tags.filter(t => t !== tagName) }));
+    };
+
+    const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addTag(tagInput);
+        }
+    };
 
     // Load Quill dynamically
     useEffect(() => {
@@ -43,12 +98,14 @@ export default function PostEditor({ filePath }: PostEditorProps) {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [authRes, catRes] = await Promise.allSettled([
+                const [authRes, catRes, tagRes] = await Promise.allSettled([
                     githubApi('read', 'src/data/authors.json'),
                     githubApi('read', 'src/data/categories.json'),
+                    githubApi('read', 'src/data/tags.json'),
                 ]);
                 if (authRes.status === 'fulfilled') { const p = JSON.parse(authRes.value?.content || "{}"); if (Array.isArray(p)) setAuthors(p); }
-                if (catRes.status === 'fulfilled') { const p = JSON.parse(catRes.value?.content || "{}"); if (Array.isArray(p)) setDynamicCategories(p); }
+                if (catRes.status === 'fulfilled') { const p = JSON.parse(catRes.value?.content || "[]"); if (Array.isArray(p)) setDynamicCategories(p.map((c: any) => typeof c === 'string' ? c : c.name).filter(Boolean)); }
+                if (tagRes.status === 'fulfilled') { const p = JSON.parse(tagRes.value?.content || "[]"); if (Array.isArray(p)) setAvailableTags(p.map((t: any) => typeof t === 'string' ? t : t.name).filter(Boolean)); }
 
                 if (isEditing && filePath) {
                     const fileData = await githubApi('read', filePath);
@@ -60,10 +117,26 @@ export default function PostEditor({ filePath }: PostEditorProps) {
                         const body = match[2].trim();
                         const extract = (key: string) => { const m = fm.match(new RegExp(`${key}:\\s*(?:"([^"]*)"|'([^']*)'|(.*))`)); return m ? (m[1] || m[2] || m[3] || '').trim() : ''; };
                         const parsedHtml = await marked.parse(body);
+                        const rawUpdated = extract('updatedDate');
+                        
+                        // Extract tags
+                        const tagsMatch = fm.match(/tags:\s*(\[[^\]]*\]|(?:\n\s*-\s*.*)+)/);
+                        let loadedTags: string[] = [];
+                        if (tagsMatch) {
+                            const raw = tagsMatch[1];
+                            if (raw.startsWith('[')) {
+                                try { loadedTags = JSON.parse(raw); } catch { }
+                            } else {
+                                loadedTags = raw.split('\n').map((l: string) => l.replace(/-\s*/, '').replace(/["']/g, '').trim()).filter(Boolean);
+                            }
+                        }
+
                         setPost({
                             title: extract('title'), slug: filePath.split('/').pop()?.replace('.md', '') || '',
-                            description: extract('description'), pubDate: extract('pubDate') ? formatDateForInput(extract('pubDate')) : new Date().toISOString().split('T')[0],
-                            heroImage: extract('heroImage'), category: extract('category') || 'Geral', author: extract('author'),
+                            description: extract('description'),
+                            pubDate: extract('pubDate') ? formatDateForInput(extract('pubDate')) : new Date().toISOString().split('T')[0],
+                            updatedDate: rawUpdated ? formatDateForInput(rawUpdated) : '',
+                            heroImage: extract('heroImage'), category: extract('category') || 'Geral', tags: loadedTags, author: extract('author'),
                             draft: extract('draft') === 'true', content: parsedHtml
                         });
                     } else {
@@ -128,7 +201,9 @@ export default function PostEditor({ filePath }: PostEditorProps) {
             }
             const cleanedContent = post.content.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ');
             const finalHtmlContent = await extractAndUploadInlineImages(cleanedContent);
-            const markdown = `---\ntitle: "${post.title.replace(/"/g, '\\"')}"\ndescription: "${post.description.replace(/"/g, '\\"')}"\npubDate: "${post.pubDate}"\nheroImage: "${finalHeroImage}"\ncategory: "${post.category}"\nauthor: "${post.author}"\ndraft: ${post.draft}\n---\n${finalHtmlContent}`;
+            const updatedDateLine = post.updatedDate ? `updatedDate: "${post.updatedDate}"\n` : '';
+            const tagsLine = `tags: ${JSON.stringify(post.tags)}\n`;
+            const markdown = `---\ntitle: "${post.title.replace(/"/g, '\\"')}"\ndescription: "${post.description.replace(/"/g, '\\"')}"\npubDate: "${post.pubDate}"\n${updatedDateLine}heroImage: "${finalHeroImage}"\ncategory: "${post.category}"\n${tagsLine}author: "${post.author}"\ndraft: ${post.draft}\n---\n${finalHtmlContent}`;
             const targetPath = `src/content/blog/${post.slug}.md`;
             const res = await githubApi('write', targetPath, { content: markdown, sha: fileSha || undefined, message: `CMS: ${isEditing ? 'Edição' : 'Criação'} do artigo ${post.slug}` });
             if (res.sha) setFileSha(res.sha);
@@ -194,16 +269,35 @@ export default function PostEditor({ filePath }: PostEditorProps) {
 
                     {/* Content Editor */}
                     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                        <label className={labelClass}>Conteúdo do Artigo</label>
+                        <div className="flex items-center justify-between mb-2">
+                            <label className={labelClass}>Conteúdo do Artigo</label>
+                            {!isPreview && (
+                                <button
+                                    type="button"
+                                    onClick={handleInsertToc}
+                                    className="flex items-center gap-1.5 text-xs font-bold bg-violet-50 hover:bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg border border-violet-200/80 transition-colors shadow-sm cursor-pointer"
+                                    title="Insere a tag [toc] no artigo. No site publicado, ela será substituída automaticamente pelo Sumário (Table of Contents)."
+                                >
+                                    <ListTree className="w-3.5 h-3.5 text-violet-600" />
+                                    Inserir [toc] (Sumário)
+                                </button>
+                            )}
+                        </div>
                         {isPreview ? (
                             <div className="prose prose-slate max-w-none border border-slate-200 rounded-xl p-6 min-h-[300px]" dangerouslySetInnerHTML={{ __html: post.content }} />
                         ) : QuillEditor ? (
-                            <QuillEditor
-                                theme="snow"
-                                value={post.content}
-                                onChange={(val: string) => setPost(p => ({ ...p, content: val }))}
-                                style={{ minHeight: '300px' }}
-                            />
+                            <>
+                                <QuillEditor
+                                    ref={quillRef}
+                                    theme="snow"
+                                    value={post.content}
+                                    onChange={(val: string) => setPost(p => ({ ...p, content: val }))}
+                                    style={{ minHeight: '300px' }}
+                                />
+                                <p className="mt-2 text-[11px] text-slate-400 flex items-center gap-1 font-medium">
+                                    <span>💡 O shortcode <code className="bg-slate-100 px-1.5 py-0.5 rounded text-violet-600 font-mono text-[11px]">[toc]</code> será substituído no post publicado pelo Table of Contents gerado automaticamente a partir das seções H2/H3.</span>
+                                </p>
+                            </>
                         ) : (
                             <div className="flex items-center justify-center p-12 text-slate-400"><Loader2 className="w-6 h-6 animate-spin mr-2" />Carregando editor...</div>
                         )}
@@ -226,6 +320,16 @@ export default function PostEditor({ filePath }: PostEditorProps) {
                             <div>
                                 <label className={labelClass}>Data de Publicação</label>
                                 <input type="date" value={post.pubDate} onChange={e => setPost(p => ({ ...p, pubDate: e.target.value }))} className={inputClass} />
+                            </div>
+                            <div>
+                                <div className="flex items-center justify-between mb-1">
+                                    <label className={labelClass}>Data de Atualização</label>
+                                    {post.updatedDate && (
+                                        <button type="button" onClick={() => setPost(p => ({ ...p, updatedDate: '' }))} className="text-[11px] text-red-500 hover:text-red-700 font-semibold cursor-pointer">Limpar</button>
+                                    )}
+                                </div>
+                                <input type="date" value={post.updatedDate || ''} onChange={e => setPost(p => ({ ...p, updatedDate: e.target.value }))} className={inputClass} />
+                                <span className="text-[10px] text-slate-400 font-medium block mt-1">Vem em branco. Preencha apenas quando o artigo passar por atualização.</span>
                             </div>
                         </div>
                     </div>
@@ -255,6 +359,32 @@ export default function PostEditor({ filePath }: PostEditorProps) {
                                 ) : (
                                     <input type="text" value={post.author} onChange={e => setPost(p => ({ ...p, author: e.target.value }))} className={inputClass} placeholder="Nome do autor" />
                                 )}
+                            </div>
+                            <div>
+                                <label className={labelClass}>Tags / Etiquetas</label>
+                                <div className="flex flex-wrap gap-1.5 p-2 bg-white border border-slate-200 rounded-xl min-h-[46px] focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-500/20 transition-all">
+                                    {post.tags.map((t, idx) => (
+                                        <span key={idx} className="inline-flex items-center gap-1 bg-violet-50 text-violet-700 text-xs font-bold px-2 py-1 rounded-lg border border-violet-200/80">
+                                            #{t}
+                                            <button type="button" onClick={() => removeTag(t)} className="text-violet-400 hover:text-violet-700 ml-0.5 cursor-pointer">
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </span>
+                                    ))}
+                                    <input
+                                        type="text"
+                                        value={tagInput}
+                                        onChange={e => setTagInput(e.target.value)}
+                                        onKeyDown={handleTagKeyDown}
+                                        placeholder={post.tags.length === 0 ? "Digite e pressione Enter..." : "+ Tag..."}
+                                        className="flex-1 min-w-[100px] bg-transparent text-xs font-medium text-slate-800 outline-none px-1"
+                                        list="available-tags-list"
+                                    />
+                                    <datalist id="available-tags-list">
+                                        {availableTags.map(t => <option key={t} value={t} />)}
+                                    </datalist>
+                                </div>
+                                <span className="text-[10px] text-slate-400 font-medium block mt-1">Pressione Enter ou vírgula para adicionar.</span>
                             </div>
                         </div>
                     </div>

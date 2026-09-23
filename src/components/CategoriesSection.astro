@@ -1,7 +1,7 @@
 ---
 import { readData } from '../lib/readData';
 
-const categories = readData('categories.json', []) as string[];
+const categoriesRaw = readData('categories.json', []) as any[];
 
 const categoryImages: Record<string, string> = {
   'Apps e Software': 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&auto=format&fit=crop&q=80',
@@ -12,9 +12,19 @@ const categoryImages: Record<string, string> = {
   'Review': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=500&auto=format&fit=crop&q=80'
 };
 
-function categorySlug(cat: string) {
+function defaultCategorySlug(cat: string) {
   return cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
 }
+
+const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : []).map((c: any) => {
+  if (typeof c === 'string') {
+    return { name: c, slug: defaultCategorySlug(c) };
+  }
+  return {
+    name: c?.name || '',
+    slug: c?.slug || (c?.name ? defaultCategorySlug(c.name) : '')
+  };
+}).filter(c => Boolean(c.name));
 ---
 
 <section class="continue-por-aqui my-5">
@@ -53,8 +63,9 @@ function categorySlug(cat: string) {
   <!-- CARROSSEL / GRID DE CARDS DE CATEGORIA -->
   <div class="cat-grid-wrapper overflow-x-auto pb-2">
     <div class="d-flex gap-3 cat-grid" style="scroll-behavior: smooth;">
-      {categories.map((cat) => {
-        const slug = categorySlug(cat);
+      {categories.map((catObj) => {
+        const cat = catObj.name;
+        const slug = catObj.slug;
         const img = categoryImages[cat] || 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=80';
         return (
           <a

@@ -58,7 +58,7 @@ const selectedFont =
 const primaryColor = siteConfig.theme?.primary || "#70EDED";
 const accentColor = siteConfig.theme?.accent || "#2222D3";
 const darkColor = siteConfig.theme?.dark || "#0B0F19";
-const categoriesData = readData<string[]>("categories.json", []);
+const categoriesDataRaw = readData<any[]>("categories.json", []);
 const menuItems: any[] = readData("menu.json", { items: [] }).items || [];
 
 const posts = await getCollection("blog");
@@ -69,10 +69,10 @@ const categoriesFromPosts = [
       .filter((c): c is string => typeof c === "string" && c.trim().length > 0),
   ),
 ];
-const finalCategoriesData: string[] = Array.isArray(categoriesData)
-  ? categoriesData.filter(
-      (c): c is string => typeof c === "string" && c.trim().length > 0,
-    )
+const finalCategoriesData: string[] = Array.isArray(categoriesDataRaw)
+  ? categoriesDataRaw
+      .map((c) => (typeof c === "string" ? c : c?.name))
+      .filter((c): c is string => typeof c === "string" && c.trim().length > 0)
   : [];
 const allCategories: string[] =
   finalCategoriesData.length > 0 ? finalCategoriesData : categoriesFromPosts;

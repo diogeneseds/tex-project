@@ -8,16 +8,31 @@ import { getCollection } from 'astro:content';
 import type { GetStaticPathsOptions } from 'astro';
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const tagsData = readData('tags.json', []);
   const posts = await getCollection('blog');
   
-  // Coleta todas as tags únicas de todos os posts
-  const allTagsMap = new Map<string, string>(); // slug -> name
+  const rawList = Array.isArray(tagsData) ? tagsData : [];
+  const tagMap = new Map<string, { name: string; slug: string; description: string }>();
+
+  rawList.forEach((item: any) => {
+    if (typeof item === 'string') {
+      const name = item.trim();
+      const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+      if (name && slug) tagMap.set(slug, { name, slug, description: '' });
+    } else if (item && typeof item === 'object') {
+      const name = (item.name || '').trim();
+      const slug = (item.slug || '').trim() || name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+      if (name && slug) tagMap.set(slug, { name, slug, description: item.description || '' });
+    }
+  });
+
   posts.forEach(post => {
     const tags = post.data.tags || [];
     tags.forEach((t: string) => {
-      const slug = t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
-      if (slug && !allTagsMap.has(slug)) {
-        allTagsMap.set(slug, t);
+      const name = t.trim();
+      const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+      if (slug && !tagMap.has(slug)) {
+        tagMap.set(slug, { name, slug, description: '' });
       }
     });
   });
@@ -26,24 +41,25 @@ export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
   );
 
-  return Array.from(allTagsMap.entries()).flatMap(([slug, tagName]) => {
+  return Array.from(tagMap.values()).flatMap((tagItem) => {
     const tagPosts = sortedPosts.filter(p =>
-      (p.data.tags || []).some((t: string) =>
-        t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') === slug
-      )
+      (p.data.tags || []).some((t: string) => {
+        const s = t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+        return s === tagItem.slug || t.toLowerCase() === tagItem.name.toLowerCase();
+      })
     );
 
     return paginate(tagPosts, {
-      params: { tag: slug },
-      props: { tagName, tagSlug: slug },
+      params: { tag: tagItem.slug },
+      props: { tagName: tagItem.name, tagSlug: tagItem.slug, customDescription: tagItem.description },
       pageSize: 12,
     });
   });
 }
 
-const { page, tagName, tagSlug } = Astro.props;
+const { page, tagName, tagSlug, customDescription } = Astro.props;
 const siteConfig = readData('siteConfig.json');
-const tagDescription = `Artigos, notícias e novidades sobre ${tagName} no ${siteConfig.name}.`;
+const tagDescription = customDescription || `Artigos, notícias e novidades sobre ${tagName} no ${siteConfig.name}.`;
 
 const isFirstPage = page.currentPage === 1;
 const topThreePosts = isFirstPage ? page.data.slice(0, 3) : [];

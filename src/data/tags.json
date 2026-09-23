@@ -1,0 +1,142 @@
+[
+  {
+    "name": "Tecnologia",
+    "slug": "tecnologia",
+    "description": "Notícias, novidades e artigos sobre inovação e tecnologia."
+  },
+  {
+    "name": "Hardware",
+    "slug": "hardware",
+    "description": "Guias, análises e novidades sobre componentes físicos de PC e dispositivos."
+  },
+  {
+    "name": "Software",
+    "slug": "software",
+    "description": "Programas, utilitários e dicas de softwares para otimizar seu sistema."
+  },
+  {
+    "name": "Games",
+    "slug": "games",
+    "description": "Novidades, análises e dicas sobre jogos para PC, consoles e mobile."
+  },
+  {
+    "name": "Aplicativos",
+    "slug": "aplicativos",
+    "description": "Os melhores aplicativos para smartphones Android, iOS e computadores."
+  },
+  {
+    "name": "Produtividade",
+    "slug": "produtividade",
+    "description": "Ferramentas e técnicas para melhorar sua eficiência e organização no trabalho."
+  },
+  {
+    "name": "Dicas",
+    "slug": "dicas",
+    "description": "Dicas práticas de tecnologia para o seu dia a dia."
+  },
+  {
+    "name": "Inteligência Artificial",
+    "slug": "inteligencia-artificial",
+    "description": "Tudo sobre modelos de IA, ferramentas generativas e novidades do setor."
+  },
+  {
+    "name": "Review",
+    "slug": "review",
+    "description": "Análises imparciais de produtos, periféricos e gadgets de tecnologia."
+  },
+  {
+    "name": "OLED",
+    "slug": "oled",
+    "description": "Notícias e comparativos de monitores e telas com tecnologia OLED."
+  },
+  {
+    "name": "Monitor Gamer",
+    "slug": "monitor-gamer",
+    "description": "Guias e recomendações para escolher o melhor monitor gamer."
+  },
+  {
+    "name": "Blogging",
+    "slug": "blogging",
+    "description": "Dicas e tutoriais para quem deseja criar e gerenciar um blog de sucesso."
+  },
+  {
+    "name": "Monetização",
+    "slug": "monetizacao",
+    "description": "Estratégias para gerar receita com seu blog e canais digitais."
+  },
+  {
+    "name": "Renda Extra",
+    "slug": "renda-extra",
+    "description": "Ideias e oportunidades de trabalho online e renda extra no mercado digital."
+  },
+  {
+    "name": "Marketing Digital",
+    "slug": "marketing-digital",
+    "description": "Conceitos e estratégias para crescer sua presença e audiência na internet."
+  },
+  {
+    "name": "SEO",
+    "slug": "seo",
+    "description": "Técnicas de otimização para mecanismos de busca e tráfego orgânico."
+  },
+  {
+    "name": "Google",
+    "slug": "google",
+    "description": "Novidades, ferramentas e atualizações do ecossistema Google."
+  },
+  {
+    "name": "Alibaba",
+    "slug": "alibaba",
+    "description": "Notícias e lançamentos de inteligência artificial e tecnologia do Alibaba."
+  },
+  {
+    "name": "Qwen",
+    "slug": "qwen",
+    "description": "Artigos e análises sobre os modelos de linguagem Qwen."
+  },
+  {
+    "name": "Periféricos",
+    "slug": "perifericos",
+    "description": "Teclados, mouses, fones de ouvido e acessórios para PC."
+  },
+  {
+    "name": "Teclados",
+    "slug": "teclados",
+    "description": "Análises, dicas e comparações de teclados mecânicos e de membrana."
+  },
+  {
+    "name": "Tutorial",
+    "slug": "tutorial",
+    "description": "Passo a passo detalhado para resolver problemas no computador e celular."
+  },
+  {
+    "name": "Criação de Conteúdo",
+    "slug": "criacao-de-conteudo",
+    "description": "Ferramentas e dicas para criadores de conteúdo digital."
+  },
+  {
+    "name": "Lançamentos",
+    "slug": "lancamentos",
+    "description": "Anúncios e lançamentos recentes de jogos, softwares e hardwares."
+  },
+  {
+    "name": "Windows",
+    "slug": "windows",
+    "description": "Dicas, soluções de problemas e novidades do sistema operacional Windows."
+  },
+  {
+    "name": "Linux",
+    "slug": "linux",
+    "description": "Distribuições, comandos e dicas para usuários do sistema Linux."
+  },
+  {
+    "name": "Android",
+    "slug": "android",
+    "description": "Aplicativos, truques e novidades para o sistema Android."
+  },
+  {
+    "name": "WhatsApp",
+    "slug": "whatsapp",
+    "description": "Recursos, truques e atualizações do mensageiro WhatsApp."
+  }
+]

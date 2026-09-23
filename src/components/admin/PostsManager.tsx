@@ -64,15 +64,15 @@ export default function PostsManager() {
                         sha = fileData.sha || f.sha;
                     }
                     const match = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-                    let title = f.name, category = 'Geral', author = '', pubDate = '', draft = false, description = '', heroImage = '';
+                    let title = f.name, category = 'Geral', author = '', pubDate = '', updatedDate = '', draft = false, description = '', heroImage = '';
                     const slug = f.name.replace('.md', '');
                     if (match) {
                         const fm = match[1];
                         const extract = (key: string) => { const m = fm.match(new RegExp(`${key}:\\s*(?:"([^"]*)"|'([^']*)'|([^\\n\\r]+))`)); return m ? (m[1] || m[2] || m[3] || '').trim() : ''; };
-                        title = extract('title') || f.name; category = extract('category') || 'Geral'; author = extract('author'); pubDate = extract('pubDate'); draft = extract('draft') === 'true'; description = extract('description'); heroImage = extract('heroImage');
+                        title = extract('title') || f.name; category = extract('category') || 'Geral'; author = extract('author'); pubDate = extract('pubDate'); updatedDate = extract('updatedDate'); draft = extract('draft') === 'true'; description = extract('description'); heroImage = extract('heroImage');
                         if (category) allCategories.add(category);
                     }
-                    enriched.push({ ...f, sha: sha || f.sha, title, category, author, pubDate, draft, description, heroImage, slug, rawBody: match ? match[2] : text });
+                    enriched.push({ ...f, sha: sha || f.sha, title, category, author, pubDate, updatedDate, draft, description, heroImage, slug, rawBody: match ? match[2] : text });
                 }));
 
                 setPosts(enriched);
@@ -100,7 +100,7 @@ export default function PostsManager() {
 
     const handleQuickAction = (post: any) => {
         setEditingSha(post.sha);
-        setQuickEditData({ title: post.title, slug: post.slug, pubDate: post.pubDate ? new Date(post.pubDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0], author: post.author, category: post.category, draft: post.draft, _oldSlug: post.slug, _oldPath: post.path, _sha: post.sha, description: post.description, heroImage: post.heroImage, rawBody: post.rawBody });
+        setQuickEditData({ title: post.title, slug: post.slug, pubDate: post.pubDate ? new Date(post.pubDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0], updatedDate: post.updatedDate ? new Date(post.updatedDate).toISOString().split('T')[0] : '', author: post.author, category: post.category, draft: post.draft, _oldSlug: post.slug, _oldPath: post.path, _sha: post.sha, description: post.description, heroImage: post.heroImage, rawBody: post.rawBody });
     };
 
     const saveQuickEdit = async () => {
@@ -108,7 +108,8 @@ export default function PostsManager() {
         setSaving(true);
         try {
             const targetPath = `src/content/blog/${quickEditData.slug}.md`;
-            const markdown = `---\ntitle: "${quickEditData.title.replace(/"/g, '\\"')}"\ndescription: "${(quickEditData.description || '').replace(/"/g, '\\"')}"\npubDate: "${quickEditData.pubDate}"\nheroImage: "${quickEditData.heroImage || ''}"\ncategory: "${quickEditData.category}"\nauthor: "${quickEditData.author}"\ndraft: ${quickEditData.draft}\n---\n${quickEditData.rawBody}`;
+            const updatedDateLine = quickEditData.updatedDate ? `updatedDate: "${quickEditData.updatedDate}"\n` : '';
+            const markdown = `---\ntitle: "${quickEditData.title.replace(/"/g, '\\"')}"\ndescription: "${(quickEditData.description || '').replace(/"/g, '\\"')}"\npubDate: "${quickEditData.pubDate}"\n${updatedDateLine}heroImage: "${quickEditData.heroImage || ''}"\ncategory: "${quickEditData.category}"\nauthor: "${quickEditData.author}"\ndraft: ${quickEditData.draft}\n---\n${quickEditData.rawBody}`;
 
             if (quickEditData.slug !== quickEditData._oldSlug) {
                 await githubApi('write', targetPath, { content: markdown, message: `CMS: Renomeando ${quickEditData.slug}` });
@@ -259,8 +260,12 @@ export default function PostsManager() {
                                                             <input type="text" value={quickEditData.slug} onChange={e => setQuickEditData({ ...quickEditData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-violet-500" />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data</label>
+                                                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Publicação</label>
                                                             <input type="date" value={quickEditData.pubDate} onChange={e => setQuickEditData({ ...quickEditData, pubDate: e.target.value })} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-500" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data Atualização (Opcional)</label>
+                                                            <input type="date" value={quickEditData.updatedDate || ''} onChange={e => setQuickEditData({ ...quickEditData, updatedDate: e.target.value })} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-500" />
                                                         </div>
                                                         <div>
                                                             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Categoria</label>

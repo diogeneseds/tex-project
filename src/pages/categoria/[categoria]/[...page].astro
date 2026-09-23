@@ -9,40 +9,62 @@ import type { GetStaticPathsOptions } from 'astro';
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   const categoriesData = readData('categories.json', []);
   const posts = await getCollection('blog');
-  const finalCategoriesData = Array.isArray(categoriesData) ? categoriesData : [];
-  const categoriesFromPosts = [...new Set(posts.map(p => p.data.category).filter(Boolean))];
-  const allCategories = finalCategoriesData.length > 0 ? finalCategoriesData : categoriesFromPosts;
+
+  const rawList = Array.isArray(categoriesData) ? categoriesData : [];
+  const normalizedList = rawList.map((item: any) => {
+    if (typeof item === 'string') {
+      const name = item.trim();
+      const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+      return { name, slug, description: '' };
+    }
+    const name = (item.name || '').trim();
+    const slug = (item.slug || '').trim() || name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+    return { name, slug, description: item.description || '' };
+  }).filter(c => c.name && c.slug);
+
+  const existingSlugs = new Set(normalizedList.map(c => c.slug));
+  posts.forEach(p => {
+    if (p.data.category) {
+      const name = p.data.category.trim();
+      const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+      if (slug && !existingSlugs.has(slug)) {
+        existingSlugs.add(slug);
+        normalizedList.push({ name, slug, description: '' });
+      }
+    }
+  });
 
   const sortedPosts = posts.sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
   );
 
-  return allCategories.flatMap((cat) => {
-    const slug = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
-    const categoryPosts = sortedPosts.filter(p => (p.data.category || '').toLowerCase() === cat.toLowerCase());
+  return normalizedList.flatMap((catItem) => {
+    const categoryPosts = sortedPosts.filter(p =>
+      (p.data.category || '').toLowerCase() === catItem.name.toLowerCase() ||
+      (p.data.category || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') === catItem.slug
+    );
 
     return paginate(categoryPosts, {
-      params: { categoria: slug },
-      props: { categoryName: cat, categorySlug: slug },
+      params: { categoria: catItem.slug },
+      props: { categoryName: catItem.name, categorySlug: catItem.slug, customDescription: catItem.description },
       pageSize: 12,
     });
   });
 }
 
-const { page, categoryName, categorySlug } = Astro.props;
+const { page, categoryName, categorySlug, customDescription } = Astro.props;
 const siteConfig = readData('siteConfig.json');
 
-const categoryDescriptions: Record<string, string> = {
+const defaultDescriptions: Record<string, string> = {
   'Apps e Software': 'Atualizações, novidades e os melhores aplicativos para computador e celular.',
   'Inteligência Artificial': 'As principais inovações, ferramentas e descobertas do mundo da IA.',
   'Computadores e Hardware': 'Análises, lançamentos e dicas para montar e otimizar seu setup.',
   'Jogos': 'Lançamentos, guias de games, notícias do mercado e tecnologia de renderização.',
   'Dicas e Tutoriais': 'Guias práticos passo a passo para resolver problemas e otimizar seu uso.',
   'Review': 'Análises e testes detalhados e independentes dos melhores gadgets e produtos.',
-  'Internet': 'Atualizações e curiosidades sobre o que está em alta no mundo digital.'
 };
 
-const categoryDescription = categoryDescriptions[categoryName] || `Atualizações, novidades e tudo sobre ${categoryName} no ${siteConfig.name}.`;
+const categoryDescription = customDescription || defaultDescriptions[categoryName] || `Atualizações, novidades e tudo sobre ${categoryName} no ${siteConfig.name}.`;
 
 // Se estiver na primeira página (page.currentPage === 1), destaca os 3 primeiros posts nos cards do topo
 const isFirstPage = page.currentPage === 1;

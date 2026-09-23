@@ -1,0 +1,12 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import TagsEditor from '../../components/admin/TagsEditor';
+---
+<AdminLayout title="Tags / Etiquetas" activeSection="tags">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-slate-900">Tags / Etiquetas</h1>
+        <p class="text-slate-500 mt-1">Gerencie as tags do blog para enriquecer a arquitetura de informação, SEO e busca por IA.</p>
+    </div>
+    <TagsEditor client:load />
+</AdminLayout>

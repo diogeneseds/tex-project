@@ -1,8 +1,32 @@
 [
-  "Apps e Software",
-  "Inteligência Artificial",
-  "Computadores e Hardware",
-  "Jogos",
-  "Dicas e Tutoriais",
-  "Review"
+  {
+    "name": "Apps e Software",
+    "slug": "apps-e-software",
+    "description": "Atualizações, novidades e os melhores aplicativos para computador e celular."
+  },
+  {
+    "name": "Inteligência Artificial",
+    "slug": "inteligencia-artificial",
+    "description": "As principais inovações, ferramentas e descobertas do mundo da IA."
+  },
+  {
+    "name": "Computadores e Hardware",
+    "slug": "computadores-e-hardware",
+    "description": "Análises, lançamentos e dicas para montar e otimizar seu setup."
+  },
+  {
+    "name": "Jogos",
+    "slug": "jogos",
+    "description": "Lançamentos, guias de games, notícias do mercado e tecnologia de renderização."
+  },
+  {
+    "name": "Dicas e Tutoriais",
+    "slug": "dicas-e-tutoriais",
+    "description": "Guias práticos passo a passo para resolver problemas e otimizar seu uso."
+  },
+  {
+    "name": "Review",
+    "slug": "review",
+    "description": "Análises e testes detalhados e independentes dos melhores gadgets e produtos."
+  }
 ]

@@ -480,6 +480,83 @@ function getRelativeTime(date: Date) {
     }
 
     // Dynamic fallback for discrete Tecnoblog-style TOC dropdown card conversion
+    var paragraphs = postContent.querySelectorAll('p');
+    paragraphs.forEach(function(p) {
+      var text = (p.textContent || '').trim().toLowerCase().replace(/\\/g, '');
+      if (text === '[toc]' || text === '[ez-toc]') {
+        var headings = Array.from(postContent.querySelectorAll('h2, h3')).filter(function(h) {
+          if (h.closest('details')) return false;
+          var hText = (h.textContent || '').trim().toLowerCase();
+          return !hText.includes('conteúdo do post') && !hText.includes('sumário do post') && hText !== 'índice' && hText !== 'indice';
+        });
+
+        if (headings.length > 0) {
+          var usedIds = {};
+          var ol = document.createElement('ol');
+          ol.className = 'space-y-1.5';
+          var currentH2Li = null;
+          var currentSubOl = null;
+
+          headings.forEach(function(h) {
+            var hText = (h.textContent || '').trim();
+            if (!h.id) {
+              var baseId = hText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || 'secao';
+              var id = baseId;
+              var c = 1;
+              while (usedIds[id]) { id = baseId + '-' + (c++); }
+              h.id = id;
+            }
+            usedIds[h.id] = true;
+
+            var a = document.createElement('a');
+            a.href = '#' + h.id;
+            a.textContent = hText;
+
+            if (h.tagName === 'H2') {
+              currentH2Li = document.createElement('li');
+              currentH2Li.appendChild(a);
+              ol.appendChild(currentH2Li);
+              currentSubOl = null;
+            } else if (h.tagName === 'H3') {
+              if (!currentH2Li) {
+                currentH2Li = document.createElement('li');
+                currentH2Li.appendChild(a);
+                ol.appendChild(currentH2Li);
+              } else {
+                if (!currentSubOl) {
+                  currentSubOl = document.createElement('ol');
+                  currentSubOl.className = 'pl-4 mt-1 space-y-1';
+                  currentH2Li.appendChild(currentSubOl);
+                }
+                var subLi = document.createElement('li');
+                subLi.appendChild(a);
+                currentSubOl.appendChild(subLi);
+              }
+            }
+          });
+
+          var details = document.createElement('details');
+          details.className = 'toc-dropdown my-4 rounded-xl border border-slate-200/80 bg-slate-50/90 overflow-hidden transition-all';
+          var summary = document.createElement('summary');
+          summary.className = 'flex items-center justify-between px-3.5 py-2.5 cursor-pointer select-none font-bold text-[#0B0F19] hover:bg-slate-100/90 transition-colors';
+          summary.innerHTML = '<div class="flex items-center gap-2"><span class="text-xs sm:text-sm font-extrabold tracking-wider uppercase text-[#0B0F19]" style="font-family: var(--font-heading);">CONTEÚDO DO POST</span></div>' +
+            '<div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-slate-500">' +
+            '<span class="toc-status-text"></span>' +
+            '<svg class="toc-chevron w-3.5 h-3.5 transition-transform duration-200 text-slate-500 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>' +
+            '</div>';
+
+          var contentDiv = document.createElement('div');
+          contentDiv.className = 'toc-content px-3.5 py-3 border-t border-slate-200/70 bg-white text-xs sm:text-sm';
+          contentDiv.appendChild(ol);
+          details.appendChild(summary);
+          details.appendChild(contentDiv);
+
+          p.parentNode.insertBefore(details, p);
+        }
+        p.remove();
+      }
+    });
+
     var h2s = postContent.querySelectorAll('h2, h3');
     h2s.forEach(function(h2) {
       if (h2.closest('details')) return;
@@ -501,7 +578,6 @@ function getRelativeTime(date: Date) {
           var summary = document.createElement('summary');
           summary.className = 'flex items-center justify-between px-3.5 py-2.5 cursor-pointer select-none font-bold text-[#0B0F19] hover:bg-slate-100/90 transition-colors';
           summary.innerHTML = '<div class="flex items-center gap-2">' +
-            // REMOVIDO: Pipe/barra azul (|) que ficava ao lado de CONTEÚDO DO POST...
             '<span class="text-xs sm:text-sm font-extrabold tracking-wider uppercase text-[#0B0F19]" style="font-family: var(--font-heading);">' + text + '</span>' +
             '</div>' +
             '<div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-slate-500">' +

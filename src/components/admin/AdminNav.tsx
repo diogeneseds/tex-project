@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    LayoutDashboard, FileText, Tag, Users, Home, Info, Phone,
+    LayoutDashboard, FileText, Tag, Hash, Users, Home, Info, Phone,
     Shield, Settings, LogOut, ChevronRight, ExternalLink, Navigation,
     Sparkles, Package,
 } from 'lucide-react';
@@ -16,6 +16,7 @@ const mainItems: NavItem[] = [
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard, section: 'dashboard' },
     { label: 'Artigos', href: '/admin/posts', icon: FileText, section: 'posts' },
     { label: 'Categorias', href: '/admin/categories', icon: Tag, section: 'categories' },
+    { label: 'Tags', href: '/admin/tags', icon: Hash, section: 'tags' },
     { label: 'Autores', href: '/admin/authors', icon: Users, section: 'authors' },
 ];
 

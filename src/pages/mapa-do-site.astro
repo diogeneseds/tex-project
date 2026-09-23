@@ -27,9 +27,18 @@ const posts = await getCollection('blog');
 const sortedPosts = posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
 
 // 3. CATEGORIAS DINÂMICAS: Lê automaticamente as categorias cadastradas e usadas nos posts
-const categoriesData = readData('categories.json', []) as string[];
+const categoriesData = readData('categories.json', []) as any[];
 const categoriesFromPosts = posts.map(post => post.data.category).filter((c): c is string => Boolean(c));
-const allCategories = [...new Set([...(Array.isArray(categoriesData) ? categoriesData : []), ...categoriesFromPosts])];
+const rawCategoryItems = Array.isArray(categoriesData) && categoriesData.length > 0 ? categoriesData : categoriesFromPosts;
+const allCategories = rawCategoryItems.map((c: any) => {
+  if (typeof c === 'string') {
+    return { name: c, slug: c.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') };
+  }
+  return {
+    name: c?.name || '',
+    slug: c?.slug || (c?.name ? c.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') : '')
+  };
+}).filter(c => Boolean(c.name));
 ---
 
 <BaseLayout title={title} description={description}>
@@ -81,12 +90,11 @@ const allCategories = [...new Set([...(Array.isArray(categoriesData) ? categorie
             Categorias ({allCategories.length})
           </h3>
           <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 list-none p-0 m-0 text-sm">
-            {allCategories.map((cat: string) => {
-              const catSlug = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+            {allCategories.map((catObj) => {
               return (
                 <li>
-                  <a href={`/categoria/${catSlug}`} class="text-slate-700 hover:text-[#2222D3] font-medium transition-colors flex items-center gap-2">
-                    <span class="text-[#2222D3]">📁</span> {cat}
+                  <a href={`/categoria/${catObj.slug}`} class="text-slate-700 hover:text-[#2222D3] font-medium transition-colors flex items-center gap-2">
+                    <span class="text-[#2222D3]">📁</span> {catObj.name}
                   </a>
                 </li>
               );

@@ -15,9 +15,29 @@ export const GET: APIRoute = async () => {
 
     const categoriesData = readData('categories.json', []);
     const categoriesFromPosts = [...new Set(posts.map(p => p.data.category).filter(Boolean))];
-    const allCategories: string[] = (Array.isArray(categoriesData) && categoriesData.length > 0)
+    const rawCategories = (Array.isArray(categoriesData) && categoriesData.length > 0)
         ? categoriesData
         : categoriesFromPosts;
+
+    const categorySlugs = rawCategories.map((c: any) => {
+        if (typeof c === 'string') {
+            return c.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+        }
+        return c?.slug || (c?.name ? c.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') : '');
+    }).filter(Boolean);
+
+    const tagsData = readData('tags.json', []);
+    const tagsFromPosts = [...new Set(posts.flatMap(p => p.data.tags || []).filter(Boolean))];
+    const rawTags = (Array.isArray(tagsData) && tagsData.length > 0)
+        ? tagsData
+        : tagsFromPosts;
+
+    const tagSlugs = rawTags.map((t: any) => {
+        if (typeof t === 'string') {
+            return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-');
+        }
+        return t?.slug || (t?.name ? t.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-') : '');
+    }).filter(Boolean);
 
     const now = new Date().toISOString().split('T')[0];
 
@@ -47,15 +67,18 @@ ${posts.map(post => {
     <priority>0.7</priority>
   </url>`;
 }).join('\n')}
-${allCategories.map(cat => {
-    const slug = cat.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    return `  <url>
+${categorySlugs.map(slug => `  <url>
     <loc>${siteUrl}/categoria/${slug}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-  </url>`;
-}).join('\n')}
+  </url>`).join('\n')}
+${tagSlugs.map(slug => `  <url>
+    <loc>${siteUrl}/tag/${slug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>`).join('\n')}
 </urlset>`;
 
     return new Response(xml.trim(), {

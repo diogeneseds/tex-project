@@ -6,14 +6,17 @@ import SettingsAI from '../../plugins/ai-generator/SettingsAI';
 import { readData } from '../../lib/readData';
 
 const authorsRaw = readData<any[]>('authors.json', []);
-const categoriesRaw = readData<string[]>('categories.json', []);
+const categoriesRaw = readData<any[]>('categories.json', []);
 const pluginsConfig = readData<any>('pluginsConfig.json', {});
 
 // Normaliza autores para o formato {slug, name} esperado pelo componente
 const authors = authorsRaw.map((a: any) => ({ slug: a.id || a.slug, name: a.name }));
 
-// Categorias no Walker são strings simples
-const categories = categoriesRaw.map((c: string) => ({ slug: c, name: c }));
+// Categorias no Walker
+const categories = categoriesRaw.map((c: any) => {
+  if (typeof c === 'string') return { slug: c, name: c };
+  return { slug: c?.name || c?.slug, name: c?.name || c?.slug };
+});
 
 // Abre em Configurações se não há API key
 const hasApiKey = !!(pluginsConfig?.ai?.apiKey);
