@@ -4,6 +4,7 @@ description: "Escolher a placa de vídeo certa pode ser uma tarefa desafiadora, 
 pubDate: "2024-07-11"
 heroImage: "../../assets/blog/Placa-de-Video-O-Que-Saber-para-a-Melhor-Escolha.jpg"
 category: "Computadores e Hardware"
+tags: ["Hardware","placa-de-video"]
 author: "Equipe de Redação"
 draft: false
 ---

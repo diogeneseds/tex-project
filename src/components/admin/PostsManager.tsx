@@ -44,8 +44,13 @@ export default function PostsManager() {
 
             if (catRes.status === 'fulfilled' && catRes.value?.content) {
                 try {
-                    const parsedCats = JSON.parse(catRes.value?.content || "{}");
-                    if (Array.isArray(parsedCats)) parsedCats.forEach((c: string) => allCategories.add(c));
+                    const parsedCats = JSON.parse(catRes.value?.content || "[]");
+                    if (Array.isArray(parsedCats)) {
+                        parsedCats.forEach((c: any) => {
+                            const catName = typeof c === 'string' ? c : c?.name;
+                            if (catName && typeof catName === 'string') allCategories.add(catName);
+                        });
+                    }
                 } catch {}
             }
 
