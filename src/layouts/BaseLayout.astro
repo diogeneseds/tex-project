@@ -346,6 +346,31 @@ const socialImage = imageStr.startsWith("http")
       outline: none !important;
       box-shadow: none !important;
     }
+    /* Barra de pesquisa no canvas-menu mobile (mesmo estilo do desktop) */
+    .canvas-search-box {
+      background-color: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      height: 40px;
+    }
+    .canvas-search-box:focus-within {
+      background-color: rgba(255, 255, 255, 0.12);
+      border-color: var(--walker-primary, #70EDED);
+      box-shadow: 0 0 0 3px rgba(112, 237, 237, 0.18);
+    }
+    .canvas-search-input::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      font-size: 0.875rem;
+    }
+    .canvas-search-input {
+      color: #ffffff !important;
+      font-size: 0.875rem;
+    }
+    .canvas-search-input:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
     .header-social-link {
       color: rgba(255, 255, 255, 0.85) !important;
       font-size: 1.15rem;
@@ -515,13 +540,6 @@ const socialImage = imageStr.startsWith("http")
                 }
               </div>
 
-              <!-- Lupa de Busca para Mobile -->
-              <button
-                class="search border-0 bg-transparent text-white fs-5 p-0 cursor-pointer d-md-none"
-                aria-label="Pesquisar"
-              >
-                <i class="fas fa-search"></i>
-              </button>
             </div>
 
           </div>
@@ -593,6 +611,22 @@ const socialImage = imageStr.startsWith("http")
             class="btn-close text-reset"
             aria-label="Close"
             style="opacity: 0.7; cursor: pointer;"></button>
+        </div>
+
+        <!-- BARRA DE PESQUISA NO MENU MOBILE (apenas mobile, oculta no desktop) -->
+        <div class="canvas-search-wrap mb-4 d-md-none">
+          <form action="/blog" method="GET" class="w-100 m-0">
+            <div class="canvas-search-box d-flex align-items-center w-100 px-3">
+              <i class="fas fa-search me-2" style="color: rgba(255,255,255,0.5); font-size: 14px;"></i>
+              <input
+                type="search"
+                name="q"
+                placeholder="Busque por notícias, análises..."
+                class="border-0 bg-transparent text-white w-100 canvas-search-input"
+                autocomplete="off"
+              />
+            </div>
+          </form>
         </div>
 
         <!-- Navegação Principal -->

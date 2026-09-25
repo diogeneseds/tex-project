@@ -91,19 +91,17 @@ function getMerchantInfo(merchant?: string, url?: string) {
     </div>
   )}
 
-  <!-- GRID / CARROSSEL DE CARDS DE PRODUTOS -->
-  <!-- Desktop: row/grid normal | Mobile: carrossel horizontal -->
-  <div class="offers-grid-container position-relative">
-
-    <!-- WRAPPER MOBILE: scroll horizontal (visível apenas em mobile) -->
-    <div class="offers-mobile-wrapper overflow-x-auto pb-2 d-flex d-sm-none gap-3 offers-grid">
+  <!-- CARROSSEL HORIZONTAL DE PRODUTOS (scroll em qualquer tamanho de tela) -->
+  <div class="offers-grid-wrapper overflow-x-auto pb-2">
+    <div class="offers-grid d-flex gap-3" style="scroll-behavior: smooth;">
       {activeProducts.map((product) => {
         const merchantInfo = getMerchantInfo(product.merchant, product.amazonUrl);
         return (
-          <div class="offer-card-item flex-shrink-0" data-category={product.category || 'Todas'} style="width: 220px;">
-            <div class="card h-100 border rounded-4 shadow-sm p-3 d-flex flex-column justify-content-between bg-white offer-card">
+          <div class="offer-card-item flex-shrink-0" data-category={product.category || 'Todas'} style="width: 280px;">
+            <div class="card h-100 border rounded-4 shadow-sm d-flex flex-column justify-content-between bg-white offer-card" style="overflow: hidden;">
               <div>
-                <div class="product-img-box position-relative rounded-4 overflow-hidden mb-3 bg-slate-900 text-center flex-shrink-0 d-flex align-items-center justify-content-center" style="height: 130px;">
+                <!-- IMAGEM FULL-BLEED - proporção 4:3, sem padding, borda a borda -->
+                <div class="product-img-box position-relative overflow-hidden" style="aspect-ratio: 280/186; width: 100%;">
                   <img
                     src={product.image || '/images/default-product.svg'}
                     alt={product.title}
@@ -111,11 +109,13 @@ function getMerchantInfo(merchant?: string, url?: string) {
                     loading="lazy"
                   />
                 </div>
-                <h3 class="product-title h6 fw-bold text-dark mb-3 leading-snug line-clamp-2" style="font-size: 0.875rem; font-family: var(--font-heading);">
+                <div class="p-3 pb-0">
+                <h3 class="product-title h6 fw-bold text-dark mb-0 leading-snug line-clamp-2" style="font-size: 0.9rem; font-family: var(--font-heading);">
                   {product.title}
                 </h3>
+                </div>
               </div>
-              <div class="pt-2 border-top d-flex flex-column gap-2 mt-auto">
+              <div class="px-3 pb-3 pt-2 border-top d-flex flex-column gap-2 mt-auto">
                 <a
                   href={product.reviewUrl || '/blog'}
                   class="offer-review-link text-decoration-none fw-bold text-center py-1 d-flex align-items-center justify-content-center gap-1"
@@ -144,61 +144,40 @@ function getMerchantInfo(merchant?: string, url?: string) {
           </div>
         );
       })}
-    </div>
 
-    <!-- WRAPPER DESKTOP: row/grid normal (oculto em mobile) -->
-    <div class="d-none d-sm-block">
-      <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 offers-grid-desktop">
-        {activeProducts.map((product) => {
-          const merchantInfo = getMerchantInfo(product.merchant, product.amazonUrl);
-          return (
-            <div class="col offer-card-item" data-category={product.category || 'Todas'}>
-              <div class="card h-100 border rounded-4 shadow-sm p-3 d-flex flex-column justify-content-between bg-white offer-card">
-                <div>
-                  <div class="product-img-box position-relative rounded-4 overflow-hidden mb-3 bg-slate-900 text-center flex-shrink-0 d-flex align-items-center justify-content-center" style="height: 159px;">
-                    <img
-                      src={product.image || '/images/default-product.svg'}
-                      alt={product.title}
-                      class="w-100 h-100 object-fit-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                  <h3 class="product-title h6 fw-bold text-dark mb-3 leading-snug line-clamp-2" style="font-size: 0.925rem; font-family: var(--font-heading);">
-                    {product.title}
-                  </h3>
-                </div>
-                <div class="pt-2 border-top d-flex flex-column gap-2 mt-auto">
-                  <a
-                    href={product.reviewUrl || '/blog'}
-                    class="offer-review-link text-decoration-none fw-bold text-center py-1 text-xs d-flex align-items-center justify-content-center gap-1"
-                    style="color: var(--walker-dark, #0B0F19); font-size: 13px;"
-                  >
-                    <i class="fas fa-file-alt text-xs"></i> Ver Review &rarr;
-                  </a>
-                  <a
-                    href={product.amazonUrl || '#'}
-                    target="_blank"
-                    rel="nofollow noopener sponsored"
-                    class="offer-btn-buy btn w-100 rounded-3 fw-extrabold text-center text-decoration-none text-sm shadow-sm"
-                    style="background-color: var(--walker-accent, #2222D3); color: #ffffff; border: none; padding: 10px 0;"
-                  >
-                    Ver Produto
-                  </a>
-                  <div class="d-flex align-items-center justify-content-start gap-1 pt-1.5 text-muted text-xs" style="font-size: 11px;">
-                    {product.category && <span class="text-secondary">{product.category} • </span>}
-                    <span class="fw-semibold text-secondary">{merchantInfo.name}</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#94a3b8" class="ms-0.5 flex-shrink-0">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <!-- CARD CTA: GUIA DE COMPRAS (sempre o último) -->
+      <div class="offer-cta-card flex-shrink-0" style="width: 280px;">
+        <a
+          href="/guia-de-compras"
+          class="d-flex flex-column align-items-center justify-content-center text-decoration-none h-100 rounded-4 p-4 offer-cta-inner"
+          style="background: linear-gradient(135deg, #2222D3 0%, #1a1ab5 50%, #111190 100%); min-height: 300px;"
+        >
+          <!-- ÍCONE SACOLA -->
+          <div class="offer-cta-icon mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: rgba(112, 237, 237, 0.2);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#70EDED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+          </div>
+
+          <!-- TÍTULO -->
+          <h3 class="fw-extrabold text-white text-center mb-2 lh-sm" style="font-family: var(--font-heading); font-size: 1.1rem;">
+            Guia de Compras<br/>TecExtreme
+          </h3>
+
+          <!-- DESCRIÇÃO -->
+          <p class="text-center mb-4" style="color: rgba(255,255,255,0.75); font-size: 0.82rem; line-height: 1.5;">
+            As melhores promoções e cupons para sua próxima compra!
+          </p>
+
+          <!-- BOTÃO -->
+          <span class="offer-cta-btn px-4 py-2 rounded-3 fw-bold text-center" style="background: rgba(255,255,255,0.15); color: #ffffff; font-size: 13px; border: 1.5px solid rgba(255,255,255,0.4); transition: all 0.2s;">
+            Confira todas as ofertas
+          </span>
+        </a>
       </div>
     </div>
-
   </div>
 </section>
 
@@ -227,14 +206,25 @@ function getMerchantInfo(merchant?: string, url?: string) {
     background-color: var(--walker-accent, #2222D3) !important;
     color: #ffffff !important;
   }
-  /* Scroll horizontal mobile - ocultar scrollbar */
-  .offers-mobile-wrapper::-webkit-scrollbar {
+  /* Card CTA Guia de Compras */
+  .offer-cta-inner {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .offer-cta-inner:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(34, 34, 211, 0.35) !important;
+  }
+  .offer-cta-inner:hover .offer-cta-btn {
+    background: rgba(255,255,255,0.28) !important;
+    border-color: rgba(255,255,255,0.7) !important;
+  }
+  /* Scroll horizontal - ocultar scrollbar */
+  .offers-grid-wrapper::-webkit-scrollbar {
     display: none;
   }
-  .offers-mobile-wrapper {
+  .offers-grid-wrapper {
     -ms-overflow-style: none;
     scrollbar-width: none;
-    /* permite arrastar com o dedo */
     touch-action: pan-x;
   }
 </style>
@@ -255,33 +245,28 @@ function getMerchantInfo(merchant?: string, url?: string) {
         btn.classList.remove('btn-light', 'text-secondary');
         btn.classList.add('btn-dark', 'text-white', 'active');
 
-        // Filtra em ambos os wrappers (mobile e desktop)
+        // Filtra todos os cards no wrapper único
         var offerCards = document.querySelectorAll('.offer-card-item');
         offerCards.forEach(function(card) {
           var cardCat = card.getAttribute('data-category');
           var show = (category === 'Todas' || cardCat === category);
-          // mobile usa flex, desktop usa block
-          if (card.closest('.offers-mobile-wrapper')) {
-            card.style.display = show ? 'flex' : 'none';
-            if (show) card.style.flexShrink = '0';
-          } else {
-            card.style.display = show ? 'block' : 'none';
-          }
+          card.style.display = show ? 'flex' : 'none';
+          if (show) card.style.flexShrink = '0';
         });
       });
     });
 
-    // Setas do carrossel mobile
-    var mobileGrid = document.querySelector('.offers-mobile-wrapper');
+    // Setas do carrossel
+    var gridWrapper = document.querySelector('.offers-grid-wrapper');
     var prevBtn = document.querySelector('.offers-prev-btn');
     var nextBtn = document.querySelector('.offers-next-btn');
 
-    if (mobileGrid && prevBtn && nextBtn) {
+    if (gridWrapper && prevBtn && nextBtn) {
       prevBtn.addEventListener('click', function() {
-        mobileGrid.scrollBy({ left: -250, behavior: 'smooth' });
+        gridWrapper.scrollBy({ left: -250, behavior: 'smooth' });
       });
       nextBtn.addEventListener('click', function() {
-        mobileGrid.scrollBy({ left: 250, behavior: 'smooth' });
+        gridWrapper.scrollBy({ left: 250, behavior: 'smooth' });
       });
     }
   });

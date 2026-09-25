@@ -1,0 +1,259 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { readData } from '../../lib/readData';
+import type { GetStaticPathsOptions } from 'astro';
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const products = readData('affiliateProducts.json', []) as any[];
+  const activeProducts = products.filter((p: any) => p.enabled !== false);
+  return paginate(activeProducts, { pageSize: 12 });
+}
+
+const { page } = Astro.props;
+const siteConfig = readData('siteConfig.json');
+
+const allProducts = readData('affiliateProducts.json', []) as any[];
+const activeProducts = allProducts.filter((p: any) => p.enabled !== false);
+const categories = ['Todas', ...Array.from(new Set(activeProducts.map((p: any) => p.category).filter(Boolean))) as string[]];
+
+function getMerchantInfo(merchant?: string, url?: string) {
+  const checkUrl = (url || '').toLowerCase();
+  const checkMerchant = (merchant || '').toLowerCase();
+  if (checkMerchant.includes('amazon') || checkUrl.includes('amazon')) return { name: 'amazon.com.br' };
+  if (checkMerchant.includes('mercado') || checkUrl.includes('mercadolivre')) return { name: 'mercadolivre.com.br' };
+  if (checkMerchant.includes('shopee') || checkUrl.includes('shopee')) return { name: 'shopee.com.br' };
+  let domain = merchant || 'loja-parceira.com.br';
+  if (!merchant && url) {
+    try { domain = new URL(url).hostname.replace(/^www\./, ''); } catch { domain = 'loja-parceira.com.br'; }
+  }
+  return { name: domain };
+}
+---
+
+<BaseLayout
+  title={`Guia de Compras${page.currentPage > 1 ? ` - Página ${page.currentPage}` : ''} - ${siteConfig.name}`}
+  description="As melhores promoções, cupons e produtos tech selecionados para você. Economize na sua próxima compra!"
+>
+
+  <section class="container-xl py-6">
+
+    <!-- CABEÇALHO -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-4 mb-6 border-b border-slate-200">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center rounded-xl p-2.5" style="background: rgba(112, 237, 237, 0.15); color: #2222D3;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-[#0B0F19] m-0" style="font-family: var(--font-heading);">
+            Guia de Compras
+          </h1>
+          <p class="text-sm text-slate-500 m-0 mt-0.5">As melhores promoções e cupons para sua próxima compra</p>
+        </div>
+      </div>
+      <span class="text-sm text-slate-400 flex-shrink-0">{activeProducts.length} produto{activeProducts.length !== 1 ? 's' : ''} disponível{activeProducts.length !== 1 ? 'is' : ''}</span>
+    </div>
+
+    <!-- FILTROS DE CATEGORIA -->
+    {categories.length > 1 && (
+      <div class="guide-cat-filters flex items-center gap-2 overflow-x-auto pb-3 mb-6">
+        {categories.map((cat, i) => (
+          <button
+            type="button"
+            class={`guide-cat-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-bold transition-all border ${i === 0 ? 'active' : ''}`}
+            data-category={cat}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+    )}
+
+    <!-- GRID 4 COLUNAS -->
+    <div class="guide-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
+      {page.data.map((product: any) => {
+        const merchantInfo = getMerchantInfo(product.merchant, product.amazonUrl);
+        return (
+          <div class="guide-product-card" data-category={product.category || 'Todas'}>
+            <div class="guide-card-inner bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
+
+              <!-- IMAGEM FULL-BLEED -->
+              <a href={product.amazonUrl || '#'} target="_blank" rel="nofollow noopener sponsored" class="block overflow-hidden flex-shrink-0" style="aspect-ratio: 280/186;">
+                <img
+                  src={product.image || '/images/default-product.svg'}
+                  alt={product.title}
+                  class="w-full h-full object-cover guide-img"
+                  loading="lazy"
+                />
+              </a>
+
+              <!-- CONTEÚDO -->
+              <div class="p-3 flex flex-col flex-1">
+                {product.category && (
+                  <div class="flex items-center gap-1 mb-1.5">
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-[#2222D3]">{product.category}</span>
+                    <span class="w-1 h-1 rounded-full bg-[#2222D3] inline-block"></span>
+                  </div>
+                )}
+                <h2 class="font-bold text-[#0B0F19] text-sm leading-snug line-clamp-2 mb-auto" style="font-family: var(--font-heading);">
+                  {product.title}
+                </h2>
+              </div>
+
+              <!-- BOTÕES -->
+              <div class="px-3 pb-3 pt-2 border-t border-slate-100 flex flex-col gap-2">
+                {product.reviewUrl && (
+                  <a href={product.reviewUrl} class="guide-review-link text-[#0B0F19] font-bold text-xs text-center py-1 flex items-center justify-center gap-1 no-underline">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+                    Ver Review →
+                  </a>
+                )}
+                <a
+                  href={product.amazonUrl || '#'}
+                  target="_blank"
+                  rel="nofollow noopener sponsored"
+                  class="guide-buy-btn w-full text-center text-white font-extrabold text-sm py-2 rounded-xl no-underline block"
+                  style="background-color: #2222D3;"
+                >
+                  Ver Produto
+                </a>
+                <div class="flex items-center gap-1 text-slate-400" style="font-size: 10px;">
+                  {product.category && <span>{product.category} •</span>}
+                  <span class="font-semibold">{merchantInfo.name}</span>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="#94a3b8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {page.data.length === 0 && (
+        <div class="col-span-4 py-16 text-center text-slate-400">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-4 opacity-30">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <p class="font-semibold">Nenhum produto disponível no momento.</p>
+        </div>
+      )}
+    </div>
+
+    <!-- PAGINAÇÃO -->
+    {page.lastPage > 1 && (
+      <nav class="flex items-center justify-center gap-1.5 mt-6 pt-6 border-t border-slate-200 text-sm font-semibold" aria-label="Navegação de Páginas">
+
+        {page.url.prev ? (
+          <a href={page.url.prev === '/guia-de-compras/1' ? '/guia-de-compras' : page.url.prev}
+            class="px-3 py-2 rounded-lg text-[#2222D3] hover:bg-slate-100 transition-colors flex items-center gap-1 no-underline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Anterior</span>
+          </a>
+        ) : (
+          <span class="px-3 py-2 rounded-lg text-slate-300 flex items-center gap-1 cursor-not-allowed">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Anterior</span>
+          </span>
+        )}
+
+        {Array.from({ length: page.lastPage }, (_, i) => i + 1).map((pageNum) => {
+          const isCurrent = pageNum === page.currentPage;
+          const pageUrl = pageNum === 1 ? '/guia-de-compras' : `/guia-de-compras/${pageNum}`;
+          if (page.lastPage > 7 && pageNum !== 1 && pageNum !== page.lastPage && Math.abs(pageNum - page.currentPage) > 2) {
+            if (pageNum === 2 && page.currentPage > 4) return <span class="px-2 text-slate-400">...</span>;
+            if (pageNum === page.lastPage - 1 && page.currentPage < page.lastPage - 3) return <span class="px-2 text-slate-400">...</span>;
+            return null;
+          }
+          return (
+            <a href={pageUrl}
+              class={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors no-underline ${isCurrent ? 'bg-[#2222D3] text-white font-bold' : 'text-slate-700 hover:bg-slate-100'}`}
+              aria-current={isCurrent ? 'page' : undefined}>
+              {pageNum}
+            </a>
+          );
+        })}
+
+        {page.url.next ? (
+          <a href={page.url.next}
+            class="px-3 py-2 rounded-lg text-[#2222D3] hover:bg-slate-100 transition-colors flex items-center gap-1 no-underline">
+            <span>Próximo</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        ) : (
+          <span class="px-3 py-2 rounded-lg text-slate-300 flex items-center gap-1 cursor-not-allowed">
+            <span>Próximo</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </span>
+        )}
+      </nav>
+    )}
+
+  </section>
+
+</BaseLayout>
+
+<style>
+  .guide-cat-filters { -ms-overflow-style: none; scrollbar-width: none; }
+  .guide-cat-filters::-webkit-scrollbar { display: none; }
+  .guide-cat-btn {
+    background: white;
+    color: #475569;
+    border-color: #e2e8f0;
+  }
+  .guide-cat-btn.active,
+  .guide-cat-btn:focus {
+    background: #0B0F19 !important;
+    color: white !important;
+    border-color: #0B0F19 !important;
+  }
+  .guide-cat-btn:not(.active):hover {
+    border-color: #2222D3;
+    color: #2222D3;
+  }
+  .guide-card-inner {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .guide-card-inner:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.09);
+  }
+  .guide-img {
+    transition: transform 0.3s ease;
+  }
+  .guide-card-inner:hover .guide-img {
+    transform: scale(1.04);
+  }
+  .guide-buy-btn {
+    transition: background-color 0.2s ease, transform 0.15s ease;
+  }
+  .guide-buy-btn:hover {
+    background-color: #1a1ab5 !important;
+    transform: translateY(-1px);
+  }
+  .guide-review-link:hover {
+    color: #2222D3 !important;
+    text-decoration: underline !important;
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function () {
+    var catBtns = document.querySelectorAll('.guide-cat-btn');
+    catBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var category = btn.getAttribute('data-category');
+        catBtns.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var cards = document.querySelectorAll('.guide-product-card');
+        cards.forEach(function (card) {
+          var cardCat = card.getAttribute('data-category');
+          card.style.display = (category === 'Todas' || cardCat === category) ? '' : 'none';
+        });
+      });
+    });
+  });
+</script>
