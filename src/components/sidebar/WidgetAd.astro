@@ -2,61 +2,168 @@
 import { readData } from '../../lib/readData';
 
 interface Props {
+  position?: 'top' | 'homeOffers' | 'sidebar1' | 'sidebar2' | 'footer' | string;
   slotId?: string;
+  className?: string;
+  containerClass?: string;
 }
 
-const { slotId } = Astro.props;
+const { position, slotId, className = '', containerClass = '' } = Astro.props;
+
+// Normalizar a chave da posição
+let posKey = position;
+if (!posKey && slotId) {
+  if (slotId === 'sidebar-top-ad') posKey = 'sidebar1';
+  else if (slotId === 'sidebar-middle-ad') posKey = 'sidebar2';
+  else posKey = slotId;
+}
+
+const isSidebar = Boolean(
+  posKey === 'sidebar1' ||
+  posKey === 'sidebar2' ||
+  posKey?.includes('sidebar') ||
+  slotId?.includes('sidebar')
+);
+
 const pluginsConfig = readData('pluginsConfig.json', {}) as any;
 const adsenseConfig = pluginsConfig?.adsense || {};
-const isAdsenseEnabled = adsenseConfig.enabled && adsenseConfig.publisherId;
+
+const slotConfig = posKey ? adsenseConfig?.slots?.[posKey] : null;
+
+// Código do anúncio (pode ser o código HTML completo colado na caixa de texto ou um ID de slot)
+const rawCode = (slotConfig?.code || slotConfig?.slotId || '').trim();
+const isEnabled = slotConfig ? slotConfig.enabled !== false : true;
+const isManualAdsEnabled = adsenseConfig.manualAdsEnabled !== false;
+const hasCode = Boolean(rawCode);
+
+// Se tem código e está ativo -> Mostrar anúncio ativo
+// Se não tem código (ou está desativado):
+//   - Se for Sidebar: mostrar Fallback "Espaço Publicitário"
+//   - Se NÃO for Sidebar: não mostrar nada (inativo)
+const shouldRenderAd = isManualAdsEnabled && isEnabled && hasCode;
+const shouldRenderFallback = !shouldRenderAd && isSidebar;
 ---
 
-<div class="widget-ad-wrapper text-center my-2">
-  <!-- LABEL "Publicidade" SEM BORDAS OU FUNDO -->
-  <span class="d-block text-slate-400 dark:text-slate-500 font-medium text-xs tracking-wider mb-2 text-center" style="font-size: 11px;">
-    Publicidade
-  </span>
-
-  {isAdsenseEnabled ? (
-    <div class="adsense-slot min-h-[250px] w-full flex items-center justify-center">
-      <ins
-        class="adsbygoogle"
-        style="display:block"
-        data-ad-client={adsenseConfig.publisherId}
-        data-ad-slot={slotId || adsenseConfig.sidebarSlotId || '1234567890'}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
-      <script is:inline>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
+{shouldRenderAd && (
+  containerClass ? (
+    <div class={containerClass}>
+      <div class={`widget-ad-wrapper text-center my-2 ${className}`}>
+        <span class="d-block text-slate-400 dark:text-slate-500 font-medium text-xs tracking-wider mb-2 text-center" style="font-size: 11px;">
+          Publicidade
+        </span>
+        {rawCode.includes('<') ? (
+          <div class="adsense-custom-code flex items-center justify-center w-full">
+            <Fragment set:html={rawCode} />
+          </div>
+        ) : (
+          <div class="adsense-slot min-h-[250px] w-full flex items-center justify-center">
+            <ins
+              class="adsbygoogle"
+              style="display:block"
+              data-ad-client={adsenseConfig.publisherId}
+              data-ad-slot={rawCode}
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            ></ins>
+            <script is:inline>
+              (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+          </div>
+        )}
+      </div>
     </div>
   ) : (
-    <!-- BANNER DE PUBLICIDADE SEM BORDA EXTERNA (CONFORME O LAYOUT DE REFERÊNCIA) -->
-    <div
-      class="ad-banner-fallback rounded-3 p-4 d-flex flex-column align-items-center justify-content-center text-center text-decoration-none shadow-xs mx-auto"
-      style="min-height: 250px; max-width: 300px; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);"
-    >
-      <div class="mb-2 opacity-80">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#70EDED" stroke-width="1.8">
-          <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-          <line x1="8" y1="21" x2="16" y2="21" />
-          <line x1="12" y1="17" x2="12" y2="21" />
-        </svg>
-      </div>
-      <span class="text-white font-extrabold text-sm mb-1" style="font-family: var(--font-heading);">
-        Espaço Publicitário
+    <div class={`widget-ad-wrapper text-center my-2 ${className}`}>
+      <span class="d-block text-slate-400 dark:text-slate-500 font-medium text-xs tracking-wider mb-2 text-center" style="font-size: 11px;">
+        Publicidade
       </span>
-      <span class="text-slate-400 text-xs mb-3" style="font-size: 11.5px;">
-        Anuncie sua marca no TecExtreme
-      </span>
-      <a
-        href="/contato"
-        class="btn btn-sm rounded-pill font-bold px-3.5 py-1.5 text-xs text-white"
-        style="background-color: var(--walker-accent, #2222D3); font-size: 11px;"
-      >
-        Anunciar Aqui
-      </a>
+      {rawCode.includes('<') ? (
+        <div class="adsense-custom-code flex items-center justify-center w-full">
+          <Fragment set:html={rawCode} />
+        </div>
+      ) : (
+        <div class="adsense-slot min-h-[250px] w-full flex items-center justify-center">
+          <ins
+            class="adsbygoogle"
+            style="display:block"
+            data-ad-client={adsenseConfig.publisherId}
+            data-ad-slot={rawCode}
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          ></ins>
+          <script is:inline>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </div>
+      )}
     </div>
-  )}
-</div>
+  )
+)}
+
+{!shouldRenderAd && shouldRenderFallback && (
+  containerClass ? (
+    <div class={containerClass}>
+      <div class={`widget-ad-wrapper text-center my-2 ${className}`}>
+        <span class="d-block text-slate-400 dark:text-slate-500 font-medium text-xs tracking-wider mb-2 text-center" style="font-size: 11px;">
+          Publicidade
+        </span>
+        <div
+          class="ad-banner-fallback rounded-3 p-4 d-flex flex-column align-items-center justify-content-center text-center text-decoration-none shadow-xs mx-auto"
+          style="min-height: 250px; max-width: 300px; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);"
+        >
+          <div class="mb-2 opacity-80">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#70EDED" stroke-width="1.8">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+          </div>
+          <span class="text-white font-extrabold text-sm mb-1" style="font-family: var(--font-heading);">
+            Espaço Publicitário
+          </span>
+          <span class="text-slate-400 text-xs mb-3" style="font-size: 11.5px;">
+            Anuncie sua marca no TecExtreme
+          </span>
+          <a
+            href="/contato"
+            class="btn btn-sm rounded-pill font-bold px-3.5 py-1.5 text-xs text-white"
+            style="background-color: var(--walker-accent, #2222D3); font-size: 11px;"
+          >
+            Anunciar Aqui
+          </a>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div class={`widget-ad-wrapper text-center my-2 ${className}`}>
+      <span class="d-block text-slate-400 dark:text-slate-500 font-medium text-xs tracking-wider mb-2 text-center" style="font-size: 11px;">
+        Publicidade
+      </span>
+      <div
+        class="ad-banner-fallback rounded-3 p-4 d-flex flex-column align-items-center justify-content-center text-center text-decoration-none shadow-xs mx-auto"
+        style="min-height: 250px; max-width: 300px; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);"
+      >
+        <div class="mb-2 opacity-80">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#70EDED" stroke-width="1.8">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+          </svg>
+        </div>
+        <span class="text-white font-extrabold text-sm mb-1" style="font-family: var(--font-heading);">
+          Espaço Publicitário
+        </span>
+        <span class="text-slate-400 text-xs mb-3" style="font-size: 11.5px;">
+          Anuncie sua marca no TecExtreme
+        </span>
+        <a
+          href="/contato"
+          class="btn btn-sm rounded-pill font-bold px-3.5 py-1.5 text-xs text-white"
+          style="background-color: var(--walker-accent, #2222D3); font-size: 11px;"
+        >
+          Anunciar Aqui
+        </a>
+      </div>
+    </div>
+  )
+)}

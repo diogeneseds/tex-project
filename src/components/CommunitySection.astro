@@ -1,15 +1,23 @@
 ---
 import { readData } from "../lib/readData";
 
+interface Props {
+  showNewsletter?: boolean;
+  showWhatsapp?: boolean;
+}
+
+const { showNewsletter = true, showWhatsapp = true } = Astro.props;
+
 const siteConfig = readData("siteConfig.json");
 const mailchimpUrl = siteConfig.newsletter?.mailchimpActionUrl || "";
 const whatsappUrl =
   siteConfig.social?.whatsappChannel || "https://whatsapp.com/channel/";
 ---
 
+{(showNewsletter || showWhatsapp) && (
 <section class="mt-8 mb-4">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- CARD 1: NEWSLETTER MAILCHIMP -->
+  <div class={`grid grid-cols-1 ${showNewsletter && showWhatsapp ? 'md:grid-cols-2' : ''} gap-6`}>
+    {showNewsletter && (
     <div
       class="relative overflow-hidden rounded-2xl bg-[#0B0F19] text-white p-6 sm:p-8 border border-slate-800 shadow-xl flex flex-col justify-between group"
     >
@@ -98,8 +106,9 @@ const whatsappUrl =
         </button>
       </form>
     </div>
+    )}
 
-    <!-- CARD 2: CANAL DO WHATSAPP -->
+    {showWhatsapp && (
     <div
       class="relative overflow-hidden rounded-2xl bg-[#0B0F19] text-white p-6 sm:p-8 border border-slate-800 shadow-xl flex flex-col justify-between group"
     >
@@ -155,5 +164,7 @@ const whatsappUrl =
         <span>Entrar no Canal do WhatsApp</span>
       </a>
     </div>
+    )}
   </div>
 </section>
+)}

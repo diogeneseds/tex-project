@@ -6,6 +6,7 @@ import OffersSection from '../components/OffersSection.astro';
 import CategoriesSection from '../components/CategoriesSection.astro';
 import VideosSection from '../components/VideosSection.astro';
 import CommunitySection from '../components/CommunitySection.astro';
+import WidgetAd from '../components/sidebar/WidgetAd.astro';
 import { getCollection } from 'astro:content';
 import { readData } from '../lib/readData';
 import { postUrl, getImageSrc } from '../lib/blogRoutes';
@@ -17,12 +18,25 @@ const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-// Pega 9 posts para a listagem principal das Últimas Notícias
-const latestPosts = posts.length >= 9
-  ? (posts.slice(9).length >= 9 ? posts.slice(9, 18) : posts.slice(0, 9))
-  : posts;
+// Configurações da listagem de posts (vindas do home.json)
+const latestLimit: number = homeConfig?.latestPosts?.limit ?? 9;
+const latestBtnText: string = homeConfig?.latestPosts?.btnText || 'Ver Todos os Posts';
+const latestBtnLink: string = homeConfig?.latestPosts?.btnLink || '/blog';
 
-const sectionTitle = homeConfig?.sectionTitles?.latestPosts || 'Últimas Notícias';
+// Seções ativas (todas ativas por padrão se não configuradas)
+const sec = homeConfig?.sections || {};
+const showOffers:     boolean = sec.offers     !== false;
+const showCategories: boolean = sec.categories !== false;
+const showVideos:     boolean = sec.videos     !== false;
+const showNewsletter: boolean = sec.newsletter !== false;
+const showWhatsapp:   boolean = sec.whatsapp   !== false;
+
+// Pega os posts da listagem principal (após os 9 do Hero)
+const latestPosts = posts.length > 9
+  ? posts.slice(9, 9 + latestLimit)
+  : posts.slice(0, latestLimit);
+
+const sectionTitle = homeConfig?.sectionTitles?.latestPosts || 'Lista de Posts Recentes';
 
 function getRelativeTime(date: Date) {
   const now = new Date();
@@ -51,13 +65,16 @@ function getRelativeTime(date: Date) {
     <VoxelHero posts={posts} />
 
     <!-- Seção Ofertas TecExtreme -->
-    <OffersSection />
+    {showOffers && <OffersSection />}
+
+    <!-- ANÚNCIO DEPOIS DE PRODUTOS / OFERTAS (APENAS NA HOME) -->
+    <WidgetAd position="homeOffers" className="my-6" />
 
     <!-- Seção Continue por Aqui (Categorias do Blog) -->
-    <CategoriesSection />
+    {showCategories && <CategoriesSection />}
 
     <!-- Seção Vídeos (Vídeos TecExtreme) -->
-    <VideosSection />
+    {showVideos && <VideosSection />}
 
     <!-- CONTAINER PRINCIPAL: LISTAGEM DE POSTS (ESQUERDA) + SIDEBAR (DIREITA) -->
     <div class="flex flex-col lg:flex-row gap-8 my-6">
@@ -143,14 +160,14 @@ function getRelativeTime(date: Date) {
           ))}
         </div>
 
-        <!-- BOTÃO "MAIS NOTÍCIAS RECENTES" (LEVA PARA /BLOG) -->
+        <!-- BOTÃO "VER TODOS OS POSTS" -->
         <div class="mt-8">
           <a
-            href="/blog"
+            href={latestBtnLink}
             class="block w-full text-center py-3.5 px-6 rounded-xl font-extrabold text-white bg-[#2222D3] hover:bg-blue-700 shadow-md hover:shadow-lg transition-all text-sm tracking-wide"
             style="font-family: var(--font-heading);"
           >
-            Mais notícias recentes
+            {latestBtnText}
           </a>
         </div>
       </div>
@@ -163,7 +180,7 @@ function getRelativeTime(date: Date) {
     </div>
 
     <!-- SEÇÃO COMUNIDADE: NEWSLETTER MAILCHIMP + CANAL DO WHATSAPP -->
-    <CommunitySection />
+    <CommunitySection showNewsletter={showNewsletter} showWhatsapp={showWhatsapp} />
   </section>
 
 </BaseLayout>

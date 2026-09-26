@@ -1,38 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { Home, TrendingUp, Sparkles, Type, Save, Loader2, AlertCircle, Check, RefreshCw, ToggleLeft } from 'lucide-react';
+import { Home, Type, Save, Loader2, AlertCircle, RefreshCw, Images, List, Square, ToggleLeft } from 'lucide-react';
 import { triggerToast } from './CmsToaster';
 import { githubApi } from '../../lib/adminApi';
 
 type PostMeta = { slug: string; title: string; path: string };
 
+type HomeSections = {
+    offers: boolean;      // Seção Produtos/Ofertas
+    categories: boolean;  // Seção Categorias
+    videos: boolean;      // Seção Vídeos
+    newsletter: boolean;  // Bloco Newsletter
+    whatsapp: boolean;    // Bloco WhatsApp
+};
+
 type HomeConfig = {
     sectionTitles: {
-        editorsPick: string;
-        trending: string;
-        inspiration: string;
         latestPosts: string;
-        popularTab: string;
-        recentTab: string;
     };
-    editorsPick: { mainSlug: string; sideSlugs: string[] };
-    trending: { slugs: string[] };
-    inspiration: { slugs: string[] };
+    // Seção Hero: 5 slides + 3 lista + 1 card
+    hero: {
+        sliderSlugs: string[];  // 5 posts
+        listSlugs: string[];    // 3 posts
+        cardSlug: string;       // 1 post
+    };
     latestPosts: { limit: number; btnText: string; btnLink: string };
+    sections: HomeSections;
+};
+
+const DEFAULT_SECTIONS: HomeSections = {
+    offers: true,
+    categories: true,
+    videos: true,
+    newsletter: true,
+    whatsapp: true,
 };
 
 const DEFAULT: HomeConfig = {
     sectionTitles: {
-        editorsPick: 'Escolha dos Editores',
-        trending: 'Em Alta',
-        inspiration: 'Inspiração',
-        latestPosts: 'Posts Recentes',
-        popularTab: 'Popular',
-        recentTab: 'Recente',
+        latestPosts: 'Lista de Posts Recentes',
     },
-    editorsPick: { mainSlug: '', sideSlugs: ['', '', '', ''] },
-    trending: { slugs: ['', '', '', ''] },
-    inspiration: { slugs: ['', '', '', ''] },
-    latestPosts: { limit: 6, btnText: 'Ver Todos os Posts', btnLink: '/blog' },
+    hero: {
+        sliderSlugs: ['', '', '', '', ''],
+        listSlugs: ['', '', ''],
+        cardSlug: '',
+    },
+    latestPosts: { limit: 9, btnText: 'Ver Todos os Posts', btnLink: '/blog' },
+    sections: DEFAULT_SECTIONS,
 };
 
 function parseFrontmatterTitle(content: string): string {
@@ -45,19 +58,38 @@ function humanize(slug: string) {
 }
 
 function mergeConfig(partial: any): HomeConfig {
-    const sideSlugs = Array.isArray(partial.editorsPick?.sideSlugs)
-        ? [...partial.editorsPick.sideSlugs, '', '', '', ''].slice(0, 4)
-        : ['', '', '', ''];
+    const sliderSlugs = Array.isArray(partial.hero?.sliderSlugs)
+        ? [...partial.hero.sliderSlugs, '', '', '', '', ''].slice(0, 5)
+        : ['', '', '', '', ''];
+
+    const listSlugs = Array.isArray(partial.hero?.listSlugs)
+        ? [...partial.hero.listSlugs, '', '', ''].slice(0, 3)
+        : ['', '', ''];
+
+    const ps = partial.sections || {};
+    const sections: HomeSections = {
+        offers:     ps.offers     !== false,
+        categories: ps.categories !== false,
+        videos:     ps.videos     !== false,
+        newsletter: ps.newsletter !== false,
+        whatsapp:   ps.whatsapp   !== false,
+    };
+
     return {
-        sectionTitles: { ...DEFAULT.sectionTitles, ...(partial.sectionTitles || {}) },
-        editorsPick: { mainSlug: partial.editorsPick?.mainSlug || '', sideSlugs },
-        trending: { slugs: Array.isArray(partial.trending?.slugs) ? [...partial.trending.slugs, '', '', '', ''].slice(0, 4) : ['', '', '', ''] },
-        inspiration: { slugs: Array.isArray(partial.inspiration?.slugs) ? [...partial.inspiration.slugs, '', '', '', ''].slice(0, 4) : ['', '', '', ''] },
+        sectionTitles: {
+            latestPosts: partial.sectionTitles?.latestPosts || DEFAULT.sectionTitles.latestPosts,
+        },
+        hero: {
+            sliderSlugs,
+            listSlugs,
+            cardSlug: partial.hero?.cardSlug || '',
+        },
         latestPosts: {
-            limit: partial.latestPosts?.limit ?? 6,
+            limit: partial.latestPosts?.limit ?? 9,
             btnText: partial.latestPosts?.btnText || 'Ver Todos os Posts',
             btnLink: partial.latestPosts?.btnLink || '/blog',
         },
+        sections,
     };
 }
 
@@ -78,7 +110,7 @@ function PostPicker({ value, posts, onChange, placeholder }: {
     );
 }
 
-type Tab = 'curation' | 'titles' | 'latest' | 'sections';
+type Tab = 'hero' | 'titles' | 'latest' | 'sections';
 
 export default function HomeEditor() {
     const [config, setConfig] = useState<HomeConfig>(DEFAULT);
@@ -87,7 +119,7 @@ export default function HomeEditor() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
-    const [tab, setTab] = useState<Tab>('curation');
+    const [tab, setTab] = useState<Tab>('hero');
 
     useEffect(() => {
         async function load() {
@@ -134,37 +166,35 @@ export default function HomeEditor() {
             });
             const fresh = await githubApi('read', 'src/data/home.json');
             setFileSha(fresh.sha);
-            triggerToast('success', 'Homepage atualizada!');
+            triggerToast('Homepage atualizada!', 'success');
         } catch (err: any) {
-            triggerToast('error', err.message);
+            triggerToast(err.message, 'error');
         } finally {
             setSaving(false);
         }
     }
 
-    const setEditorMain = (slug: string) =>
-        setConfig(c => ({ ...c, editorsPick: { ...c.editorsPick, mainSlug: slug } }));
-
-    const setEditorSide = (i: number, slug: string) =>
+    // Hero setters
+    const setHeroSlider = (i: number, slug: string) =>
         setConfig(c => {
-            const s = [...c.editorsPick.sideSlugs];
+            const s = [...c.hero.sliderSlugs];
             s[i] = slug;
-            return { ...c, editorsPick: { ...c.editorsPick, sideSlugs: s } };
+            return { ...c, hero: { ...c.hero, sliderSlugs: s } };
         });
 
-    const setTrending = (i: number, slug: string) =>
+    const setHeroList = (i: number, slug: string) =>
         setConfig(c => {
-            const s = [...c.trending.slugs];
+            const s = [...c.hero.listSlugs];
             s[i] = slug;
-            return { ...c, trending: { slugs: s } };
+            return { ...c, hero: { ...c.hero, listSlugs: s } };
         });
 
-    const setInspiration = (i: number, slug: string) =>
-        setConfig(c => {
-            const s = [...c.inspiration.slugs];
-            s[i] = slug;
-            return { ...c, inspiration: { slugs: s } };
-        });
+    const setHeroCard = (slug: string) =>
+        setConfig(c => ({ ...c, hero: { ...c.hero, cardSlug: slug } }));
+
+    // Sections setter
+    const setSection = (key: keyof HomeSections, value: boolean) =>
+        setConfig(c => ({ ...c, sections: { ...c.sections, [key]: value } }));
 
     const setTitle = (key: keyof HomeConfig['sectionTitles'], value: string) =>
         setConfig(c => ({ ...c, sectionTitles: { ...c.sectionTitles, [key]: value } }));
@@ -187,10 +217,10 @@ export default function HomeEditor() {
     );
 
     const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
-        { id: 'curation', label: 'Curadoria', icon: Home },
-        { id: 'titles', label: 'Titulos', icon: Type },
-        { id: 'latest', label: 'Recentes', icon: RefreshCw },
-        { id: 'sections', label: 'Secoes', icon: ToggleLeft },
+        { id: 'hero', label: 'Hero', icon: Home },
+        { id: 'titles', label: 'Títulos', icon: Type },
+        { id: 'latest', label: 'Lista de Posts', icon: RefreshCw },
+        { id: 'sections', label: 'Seções', icon: ToggleLeft },
     ];
 
     return (
@@ -237,90 +267,79 @@ export default function HomeEditor() {
                 })}
             </div>
 
-            {/* Tab: Curadoria */}
-            {tab === 'curation' && (
+            {/* ─────────────────────────────────────────────────────── */}
+            {/* Tab: Hero (5 Slides + 3 Lista + 1 Card)                */}
+            {/* ─────────────────────────────────────────────────────── */}
+            {tab === 'hero' && (
                 <div className="space-y-5">
                     <p className="text-sm text-slate-500">
-                        Escolha quais artigos aparecem em cada seção. Deixe em branco para usar os mais recentes automaticamente.
+                        Configure os 9 posts da seção Hero da homepage: 5 no slider, 3 na lista lateral e 1 no card de destaque.
+                        Deixe em <span className="font-semibold text-slate-600">Auto</span> para usar os mais recentes automaticamente.
                     </p>
 
-                    {/* Escolha dos Editores */}
+                    {/* SLIDES (5 posts) */}
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                         <div className="flex items-center gap-2 mb-5">
-                            <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
-                                <Check className="w-4 h-4 text-amber-600" />
+                            <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
+                                <Images className="w-4 h-4 text-blue-600" />
                             </div>
-                            <h3 className="font-bold text-slate-800">{config.sectionTitles.editorsPick}</h3>
-                            <span className="text-xs text-slate-400 ml-auto">1 destaque + 4 laterais</span>
+                            <h3 className="font-bold text-slate-800">Slider</h3>
+                            <span className="text-xs text-slate-400 ml-auto">5 posts em slides</span>
                         </div>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                                    Destaque Principal (card grande)
-                                </label>
-                                <PostPicker value={config.editorsPick.mainSlug} posts={posts} onChange={setEditorMain} />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
-                                    Lista Lateral (4 posts menores)
-                                </label>
-                                <div className="space-y-2">
-                                    {config.editorsPick.sideSlugs.map((slug, i) => (
-                                        <div key={i} className="flex items-center gap-2">
-                                            <span className="text-xs text-slate-400 w-4 shrink-0">{i + 1}</span>
-                                            <PostPicker
-                                                value={slug}
-                                                posts={posts}
-                                                onChange={v => setEditorSide(i, v)}
-                                                placeholder="— Auto —"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Em Alta */}
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                        <div className="flex items-center gap-2 mb-5">
-                            <div className="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center">
-                                <TrendingUp className="w-4 h-4 text-rose-600" />
-                            </div>
-                            <h3 className="font-bold text-slate-800">{config.sectionTitles.trending}</h3>
-                            <span className="text-xs text-slate-400 ml-auto">4 posts em grade 2×2</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            {config.trending.slugs.map((slug, i) => (
-                                <div key={i}>
-                                    <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                                        Post {i + 1} · {i < 2 ? 'coluna esquerda' : 'coluna direita'}
-                                    </label>
-                                    <PostPicker value={slug} posts={posts} onChange={v => setTrending(i, v)} />
+                        <div className="space-y-2">
+                            {config.hero.sliderSlugs.map((slug, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                    <span className="text-xs text-slate-400 w-4 shrink-0">{i + 1}</span>
+                                    <PostPicker
+                                        value={slug}
+                                        posts={posts}
+                                        onChange={v => setHeroSlider(i, v)}
+                                        placeholder="— Auto (mais recente) —"
+                                    />
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Inspiração */}
+                    {/* LISTA (3 posts) */}
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                         <div className="flex items-center gap-2 mb-5">
-                            <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
-                                <Sparkles className="w-4 h-4 text-violet-600" />
+                            <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                <List className="w-4 h-4 text-emerald-600" />
                             </div>
-                            <h3 className="font-bold text-slate-800">{config.sectionTitles.inspiration}</h3>
-                            <span className="text-xs text-slate-400 ml-auto">4 posts · carrossel</span>
+                            <h3 className="font-bold text-slate-800">Lista Lateral</h3>
+                            <span className="text-xs text-slate-400 ml-auto">3 posts em lista</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            {config.inspiration.slugs.map((slug, i) => (
-                                <div key={i}>
-                                    <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                                        Post {i + 1}
-                                    </label>
-                                    <PostPicker value={slug} posts={posts} onChange={v => setInspiration(i, v)} />
+                        <div className="space-y-2">
+                            {config.hero.listSlugs.map((slug, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                    <span className="text-xs text-slate-400 w-4 shrink-0">{i + 1}</span>
+                                    <PostPicker
+                                        value={slug}
+                                        posts={posts}
+                                        onChange={v => setHeroList(i, v)}
+                                        placeholder="— Auto (mais recente) —"
+                                    />
                                 </div>
                             ))}
                         </div>
+                    </div>
+
+                    {/* CARD (1 post) */}
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                        <div className="flex items-center gap-2 mb-5">
+                            <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
+                                <Square className="w-4 h-4 text-orange-600" />
+                            </div>
+                            <h3 className="font-bold text-slate-800">Card de Destaque</h3>
+                            <span className="text-xs text-slate-400 ml-auto">1 post com imagem</span>
+                        </div>
+                        <PostPicker
+                            value={config.hero.cardSlug}
+                            posts={posts}
+                            onChange={setHeroCard}
+                            placeholder="— Auto (mais recente) —"
+                        />
                     </div>
                 </div>
             )}
@@ -329,26 +348,17 @@ export default function HomeEditor() {
             {tab === 'titles' && (
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
                     <p className="text-sm text-slate-500 mb-2">Edite os títulos exibidos em cada seção da homepage.</p>
-                    {([
-                        { key: 'editorsPick' as const, label: 'Seção: Escolha dos Editores' },
-                        { key: 'trending' as const, label: 'Seção: Em Alta' },
-                        { key: 'inspiration' as const, label: 'Seção: Inspiração' },
-                        { key: 'latestPosts' as const, label: 'Seção: Posts Recentes' },
-                        { key: 'popularTab' as const, label: 'Aba Hero: Popular' },
-                        { key: 'recentTab' as const, label: 'Aba Hero: Recente' },
-                    ]).map(({ key, label }) => (
-                        <div key={key}>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                                {label}
-                            </label>
-                            <input
-                                type="text"
-                                value={config.sectionTitles[key]}
-                                onChange={e => setTitle(key, e.target.value)}
-                                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition-all"
-                            />
-                        </div>
-                    ))}
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                            Seção: Posts Recentes
+                        </label>
+                        <input
+                            type="text"
+                            value={config.sectionTitles.latestPosts}
+                            onChange={e => setTitle('latestPosts', e.target.value)}
+                            className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition-all"
+                        />
+                    </div>
                 </div>
             )}
 
@@ -356,7 +366,7 @@ export default function HomeEditor() {
             {tab === 'latest' && (
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
                     <p className="text-sm text-slate-500">
-                        A seção de posts recentes é sempre automática (ordenada por data). Configure aqui o número de posts exibidos e o botão "ver todos".
+                        Configura a listagem de posts abaixo do Hero na homepage. Os posts exibidos são sempre os mais recentes (ordenados por data), a partir do 10º post.
                     </p>
                     <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">
@@ -365,9 +375,9 @@ export default function HomeEditor() {
                         <input
                             type="number"
                             min={1}
-                            max={20}
+                            max={30}
                             value={config.latestPosts.limit}
-                            onChange={e => setLatest('limit', parseInt(e.target.value) || 6)}
+                            onChange={e => setLatest('limit', parseInt(e.target.value) || 9)}
                             className="w-24 px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition-all"
                         />
                     </div>
@@ -396,28 +406,40 @@ export default function HomeEditor() {
                 </div>
             )}
 
-            {/* Tab: Secoes */}
+            {/* Tab: Seções */}
             {tab === 'sections' && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-3">
-                    <p className="text-sm text-slate-500 mb-4">Escolha quais secoes da homepage ficam visiveis.</p>
-                    {[
-                        { key: 'showEditorsPick', label: 'Escolha dos Editores' },
-                        { key: 'showTrending', label: 'Em Alta (Trending)' },
-                        { key: 'showInspiration', label: 'Inspiracao' },
-                        { key: 'showLatestPosts', label: 'Posts Recentes' },
-                    ].map(s => (
-                        <label key={s.key} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                            <input
-                                type="checkbox"
-                                checked={(config as any).sections?.[s.key] !== false}
-                                onChange={e => setConfig(c => ({ ...c, sections: { ...(c as any).sections, [s.key]: e.target.checked } }))}
-                                className="w-4 h-4 rounded text-violet-600 focus:ring-violet-500"
-                            />
-                            <span className="text-sm font-medium text-slate-700">{s.label}</span>
-                        </label>
-                    ))}
+                <div className="space-y-4">
+                    <p className="text-sm text-slate-500">
+                        Ative ou desative seções da homepage. As seções desativadas ficam ocultas para os visitantes.
+                    </p>
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm divide-y divide-slate-100">
+                        {([
+                            { key: 'offers'     as const, label: 'Produtos / Ofertas',   desc: 'Vitrine de produtos e afiliados' },
+                            { key: 'categories' as const, label: 'Categorias',            desc: 'Bloco "Continue por Aqui" com as categorias do blog' },
+                            { key: 'videos'     as const, label: 'Vídeos',               desc: 'Seção de vídeos do canal' },
+                            { key: 'newsletter' as const, label: 'Newsletter',            desc: 'Formulário de inscrição na newsletter' },
+                            { key: 'whatsapp'   as const, label: 'Canal WhatsApp',        desc: 'Card com link para o canal do WhatsApp' },
+                        ]).map(s => (
+                            <label
+                                key={s.key}
+                                className="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer hover:bg-slate-50 transition-colors first:rounded-t-2xl last:rounded-b-2xl"
+                            >
+                                <div>
+                                    <p className="text-sm font-semibold text-slate-700">{s.label}</p>
+                                    <p className="text-xs text-slate-400 mt-0.5">{s.desc}</p>
+                                </div>
+                                <input
+                                    type="checkbox"
+                                    checked={config.sections[s.key]}
+                                    onChange={e => setSection(s.key, e.target.checked)}
+                                    className="w-4 h-4 shrink-0 rounded text-violet-600 focus:ring-violet-500 cursor-pointer"
+                                />
+                            </label>
+                        ))}
+                    </div>
                 </div>
             )}
+
         </div>
     );
 }

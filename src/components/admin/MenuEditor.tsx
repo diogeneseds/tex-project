@@ -39,9 +39,9 @@ export default function MenuEditor() {
             });
             const fresh = await githubApi('read', 'src/data/menu.json');
             setFileSha(fresh.sha);
-            triggerToast('success', 'Menu atualizado!');
+            triggerToast('Menu atualizado!', 'success');
         } catch (err: any) {
-            triggerToast('error', err.message);
+            triggerToast(err.message, 'error');
         } finally {
             setSaving(false);
         }

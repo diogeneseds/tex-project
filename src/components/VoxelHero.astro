@@ -1,5 +1,6 @@
 ---
 import { postUrl, getImageSrc } from '../lib/blogRoutes';
+import { readData } from '../lib/readData';
 
 interface Props {
   posts: any[];
@@ -7,14 +8,62 @@ interface Props {
 
 const { posts = [] } = Astro.props;
 
-// 1. Slider Posts (5 posts)
-const sliderPosts = posts.slice(0, 5);
+// Lê a configuração do hero do home.json
+const homeConfig = readData('home.json') as any;
+const heroCfg = homeConfig?.hero || {};
 
-// 2. Lista de 3 Posts (texto)
-const listPosts = posts.slice(5, 8);
+// Helpers para resolver post pela slug ou fallback automático
+function findPost(posts: any[], slug: string) {
+  if (!slug) return null;
+  return posts.find(p => p.slug === slug) || null;
+}
 
-// 3. Post Destaque Único por último (card com foto)
-const singleCardPost = posts[8] || posts[0];
+// 1. Slider Posts (5 posts) — curado ou auto
+const sliderSlugs: string[] = Array.isArray(heroCfg.sliderSlugs) ? heroCfg.sliderSlugs : [];
+const sliderPosts = (() => {
+  const resolved: any[] = [];
+  let autoPool = posts.filter(p => !sliderSlugs.includes(p.slug)); // posts não pinados
+  for (let i = 0; i < 5; i++) {
+    const slug = sliderSlugs[i];
+    const found = slug ? findPost(posts, slug) : null;
+    if (found) {
+      resolved.push(found);
+    } else {
+      // Auto: pega o próximo mais recente do pool
+      const auto = autoPool.shift();
+      if (auto) resolved.push(auto);
+    }
+  }
+  return resolved;
+})();
+
+// 2. Lista de 3 Posts — curado ou auto
+const listSlugs: string[] = Array.isArray(heroCfg.listSlugs) ? heroCfg.listSlugs : [];
+const usedInSlider = sliderPosts.map(p => p.slug);
+const listPosts = (() => {
+  const resolved: any[] = [];
+  let autoPool = posts.filter(p => !usedInSlider.includes(p.slug) && !listSlugs.includes(p.slug));
+  for (let i = 0; i < 3; i++) {
+    const slug = listSlugs[i];
+    const found = slug ? findPost(posts, slug) : null;
+    if (found) {
+      resolved.push(found);
+    } else {
+      const auto = autoPool.shift();
+      if (auto) resolved.push(auto);
+    }
+  }
+  return resolved;
+})();
+
+// 3. Post Destaque Único (card com foto) — curado ou auto
+const usedAll = [...usedInSlider, ...listPosts.map(p => p.slug)];
+const cardSlug = heroCfg.cardSlug || '';
+const singleCardPost = (
+  (cardSlug ? findPost(posts, cardSlug) : null)
+  || posts.find(p => !usedAll.includes(p.slug))
+  || posts[0]
+);
 ---
 
 <div class="voxel-hero mb-4">

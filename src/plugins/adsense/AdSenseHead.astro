@@ -2,21 +2,27 @@
 /**
  * AdSenseHead.astro — Plugin Google AdSense
  *
- * Injeta o script AdSense auto-ads no <head>.
- * Só renderiza se publisherId começar com "ca-pub-".
- * Lê de pluginsConfig.adsense.publisherId.
+ * Injeta o script AdSense global de verificação/anúncios no <head>.
+ * Suporta o script colado diretamente via caixa de texto (autoAdsCode)
+ * ou gerado automaticamente via Publisher ID (ca-pub-...).
  */
 import { readData } from '../../lib/readData';
 
 const pluginsConfig = readData('pluginsConfig.json', {}) as any;
-const publisherId: string = pluginsConfig?.adsense?.publisherId?.trim() || '';
-const enabled = !!publisherId && publisherId.startsWith('ca-pub-');
+const adsenseConfig = pluginsConfig?.adsense || {};
+const publisherId: string = (adsenseConfig.publisherId || '').trim();
+const autoAdsCode: string = (adsenseConfig.autoAdsCode || '').trim();
+
+const hasPublisherId = !!publisherId && publisherId.startsWith('ca-pub-');
 ---
 
-{enabled && (
+{autoAdsCode ? (
+  <Fragment set:html={autoAdsCode} />
+) : hasPublisherId ? (
   <script
     async
     src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`}
     crossorigin="anonymous"
+    data-ad-client={publisherId}
   ></script>
-)}
+) : null}

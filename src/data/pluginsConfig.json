@@ -42,7 +42,32 @@
         "count": 4
     },
     "adsense": {
-        "publisherId": ""
+        "publisherId": "",
+        "autoAdsCode": "",
+        "autoAdsEnabled": true,
+        "manualAdsEnabled": true,
+        "slots": {
+            "top": {
+                "enabled": true,
+                "code": ""
+            },
+            "homeOffers": {
+                "enabled": true,
+                "code": ""
+            },
+            "sidebar1": {
+                "enabled": true,
+                "code": ""
+            },
+            "sidebar2": {
+                "enabled": true,
+                "code": ""
+            },
+            "footer": {
+                "enabled": true,
+                "code": ""
+            }
+        }
     },
     "redirects": {
         "enabled": true

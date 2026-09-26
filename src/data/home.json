@@ -1,12 +1,32 @@
 {
     "sectionTitles": {
-        "latestPosts": "Posts Recentes",
-        "popularTab": "Popular",
-        "recentTab": "Recente"
+        "latestPosts": "Posts Recentes"
+    },
+    "hero": {
+        "sliderSlugs": [
+            "qwen-2-5-max-ia-chinesa-cria-imagens-videos",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "listSlugs": [
+            "",
+            "",
+            ""
+        ],
+        "cardSlug": ""
     },
     "latestPosts": {
-        "limit": 6,
+        "limit": 9,
         "btnText": "Ver Todos os Posts",
         "btnLink": "/blog"
+    },
+    "sections": {
+        "offers": true,
+        "categories": true,
+        "videos": true,
+        "newsletter": true,
+        "whatsapp": true
     }
 }

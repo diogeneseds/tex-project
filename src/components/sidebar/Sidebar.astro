@@ -11,13 +11,13 @@ const posts = (await getCollection('blog')).sort(
 
 <aside class="space-y-6 sticky top-24">
   <!-- 1. PUBLICIDADE -->
-  <WidgetAd slotId="sidebar-top-ad" />
+  <WidgetAd position="sidebar1" slotId="sidebar-top-ad" />
 
   <!-- 2. MAIS LIDAS (POSTS ALEATÓRIOS GERADOS AUTOMATICAMENTE) -->
   <WidgetPopularPosts posts={posts} title="Mais lidas" />
 
   <!-- 3. PUBLICIDADE NOVAMENTE -->
-  <WidgetAd slotId="sidebar-middle-ad" />
+  <WidgetAd position="sidebar2" slotId="sidebar-middle-ad" />
 
   <!-- 4. SHORTS (COM FALLBACK TECEXTREME) -->
   <WidgetShorts />

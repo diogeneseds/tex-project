@@ -6,6 +6,7 @@ import BodyEndPlugins from "../plugins/_slots/BodyEndPlugins.astro";
 import Footer from "../components/layout/Footer.astro";
 import BackToTop from "../components/layout/BackToTop.astro";
 import ReadingProgressBar from "../components/layout/ReadingProgressBar.astro";
+import WidgetAd from "../components/sidebar/WidgetAd.astro";
 import "../styles/global.css";
 
 const siteConfig = readData("siteConfig.json");
@@ -84,6 +85,7 @@ interface Props {
   type?: "website" | "article";
   bodyClass?: string;
   showReadingProgress?: boolean;
+  isLegalPage?: boolean;
 }
 
 const {
@@ -93,7 +95,11 @@ const {
   type = "website",
   bodyClass = "",
   showReadingProgress = type === "article",
+  isLegalPage = false,
 } = Astro.props;
+
+const lgpdPaths = ["/privacidade", "/termos", "/contato", "/mapa-do-site"];
+const isLgpdPage = isLegalPage || lgpdPaths.some(p => Astro.url.pathname.includes(p));
 
 const formattedTitle =
   title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
@@ -546,10 +552,18 @@ const socialImage = imageStr.startsWith("http")
         </div>
       </header>
 
+      <!-- ANÚNCIO NO TOPO DO SITE (APÓS O MENU, EXCETO PÁGINAS LGPD) -->
+      {!isLgpdPage && (
+        <WidgetAd position="top" containerClass="container-xl pt-3 pb-1" />
+      )}
+
       <!-- PAGE CONTENT -->
       <slot />
 
-
+      <!-- ANÚNCIO ANTES DO RODAPÉ (EXCETO PÁGINAS LGPD) -->
+      {!isLgpdPage && (
+        <WidgetAd position="footer" containerClass="container-xl my-4" />
+      )}
 
       <!-- footer estilo TecMundo -->
       <Footer />
