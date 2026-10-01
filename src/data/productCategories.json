@@ -1,0 +1,8 @@
+[
+  { "id": "cat-1", "name": "Smart Home", "slug": "smart-home" },
+  { "id": "cat-2", "name": "Celulares", "slug": "celulares" },
+  { "id": "cat-3", "name": "Áudio", "slug": "audio" },
+  { "id": "cat-4", "name": "Hardware", "slug": "hardware" },
+  { "id": "cat-5", "name": "Periféricos", "slug": "perifericos" },
+  { "id": "cat-6", "name": "Geral", "slug": "geral" }
+]

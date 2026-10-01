@@ -116,13 +116,23 @@ function getMerchantInfo(merchant?: string, url?: string) {
                 </div>
               </div>
               <div class="px-3 pb-3 pt-2 border-top d-flex flex-column gap-2 mt-auto">
-                <a
-                  href={product.reviewUrl || '/blog'}
-                  class="offer-review-link text-decoration-none fw-bold text-center py-1 d-flex align-items-center justify-content-center gap-1"
-                  style="color: var(--walker-dark, #0B0F19); font-size: 12px;"
-                >
-                  <i class="fas fa-file-alt"></i> Ver Review &rarr;
-                </a>
+                {product.reviewUrl ? (
+                  <a
+                    href={product.reviewUrl}
+                    class="offer-review-link text-decoration-none fw-bold text-center py-1 d-flex align-items-center justify-content-center gap-1"
+                    style="color: var(--walker-dark, #0B0F19); font-size: 12px;"
+                  >
+                    <i class="fas fa-file-alt"></i> Ver Review &rarr;
+                  </a>
+                ) : (
+                  <span
+                    class="offer-review-link text-decoration-none fw-bold text-center py-1 d-flex align-items-center justify-content-center gap-1"
+                    style="color: #94a3b8; font-size: 12px; cursor: not-allowed; opacity: 0.6; user-select: none;"
+                    title="Review não disponível"
+                  >
+                    <i class="fas fa-file-alt"></i> Ver Review &rarr;
+                  </span>
+                )}
                 <a
                   href={product.amazonUrl || '#'}
                   target="_blank"

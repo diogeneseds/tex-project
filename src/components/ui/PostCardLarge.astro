@@ -1,9 +1,11 @@
 ---
+import type { ImageMetadata } from 'astro';
+
 interface Props {
   title: string;
   description: string;
   slug: string;
-  heroImage?: string;
+  heroImage?: string | ImageMetadata;
   category?: string;
   pubDate: Date;
 }

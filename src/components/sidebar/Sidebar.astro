@@ -1,11 +1,11 @@
 ---
-import WidgetAd from './WidgetAd.astro';
-import WidgetPopularPosts from './WidgetPopularPosts.astro';
-import WidgetShorts from './WidgetShorts.astro';
-import { getCollection } from 'astro:content';
+import WidgetAd from "./WidgetAd.astro";
+import WidgetPopularPosts from "./WidgetPopularPosts.astro";
+import WidgetShorts from "./WidgetShorts.astro";
+import { getCollection } from "astro:content";
 
-const posts = (await getCollection('blog')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 

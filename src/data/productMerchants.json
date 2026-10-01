@@ -1,0 +1,7 @@
+[
+  { "id": "m-1", "name": "Amazon", "domain": "amazon.com.br" },
+  { "id": "m-2", "name": "Mercado Livre", "domain": "mercadolivre.com.br" },
+  { "id": "m-3", "name": "Shopee", "domain": "shopee.com.br" },
+  { "id": "m-4", "name": "Magalu", "domain": "magazineluiza.com.br" },
+  { "id": "m-5", "name": "Outra Loja", "domain": "loja-parceira.com.br" }
+]

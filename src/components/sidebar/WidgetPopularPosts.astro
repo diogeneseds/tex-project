@@ -1,15 +1,8 @@
 ---
+import type { CollectionEntry } from 'astro:content';
 import { postUrl } from '../../lib/blogRoutes';
 
-interface Post {
-  slug: string;
-  data: {
-    title: string;
-    heroImage?: string;
-    category?: string;
-    pubDate: Date;
-  };
-}
+type Post = CollectionEntry<'blog'>;
 
 interface Props {
   posts: Post[];

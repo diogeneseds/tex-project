@@ -82,8 +82,8 @@
   },
   {
     "name": "affiliates",
-    "label": "Amazon Affiliates",
-    "description": "Gerencie produtos e links de afiliado Amazon com blocos visuais.",
+    "label": "Produtos & Afiliados",
+    "description": "Gerencie produtos e links de afiliados (Amazon, Shopee, Mercado Livre) e insira nos artigos via shortcode.",
     "icon": "ShoppingCart",
     "color": "text-rose-600",
     "bg": "bg-rose-50",

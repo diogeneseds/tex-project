@@ -480,13 +480,33 @@ const activeProducts = products.filter((p: any) => p.enabled !== false);
       const ctaWrap = document.createElement('div');
       ctaWrap.className = 'aff-cta-wrap';
 
+      // Ver Review (ativo se p.reviewUrl existir, inativado se não existir)
+      if (p.reviewUrl) {
+        const revLink = document.createElement('a');
+        revLink.className = 'aff-cta-secondary';
+        revLink.href = p.reviewUrl;
+        revLink.textContent = 'Ver Review →';
+        ctaWrap.appendChild(revLink);
+      } else {
+        const revSpan = document.createElement('span');
+        revSpan.className = 'aff-cta-secondary';
+        revSpan.style.color = '#94a3b8';
+        revSpan.style.borderColor = '#cbd5e1';
+        revSpan.style.cursor = 'not-allowed';
+        revSpan.style.opacity = '0.6';
+        revSpan.style.userSelect = 'none';
+        revSpan.title = 'Review não disponível';
+        revSpan.textContent = 'Ver Review →';
+        ctaWrap.appendChild(revSpan);
+      }
+
       const cta = document.createElement('a');
       cta.className = 'aff-cta';
       cta.href = appendTag(p.amazonUrl || '#');
       cta.target = '_blank';
       cta.rel = 'nofollow noopener sponsored';
       cta.style.background = buttonColor;
-      cta.textContent = (p.buttonText || defaultButtonText) + ' →';
+      cta.textContent = (p.buttonText || 'Ver Produto') + ' →';
       ctaWrap.appendChild(cta);
 
       if (p.extraLinks && p.extraLinks.length > 0) {
@@ -554,25 +574,8 @@ const activeProducts = products.filter((p: any) => p.enabled !== false);
         cta.target = '_blank';
         cta.rel = 'nofollow noopener sponsored';
         cta.style.background = buttonColor;
-        cta.textContent = (p.buttonText || defaultButtonText) + ' →';
+        cta.textContent = (p.buttonText || 'Ver Produto') + ' →';
         body.appendChild(cta);
-
-        if (p.extraLinks && p.extraLinks.length > 0) {
-          p.extraLinks.forEach((link: { label: string; url: string }) => {
-            if (!link.label || !link.url) return;
-            const sec = document.createElement('a');
-            sec.className = 'aff-compare-cta';
-            sec.href = link.url;
-            sec.target = '_blank';
-            sec.rel = 'nofollow noopener sponsored';
-            sec.style.background = '#fff';
-            sec.style.color = '#374151';
-            sec.style.border = '1.5px solid #e2e8f0';
-            sec.style.marginTop = '0.4rem';
-            sec.textContent = link.label + ' →';
-            body.appendChild(sec);
-          });
-        }
 
         card.appendChild(body);
         grid.appendChild(card);
@@ -585,30 +588,32 @@ const activeProducts = products.filter((p: any) => p.enabled !== false);
       const postContent = document.querySelector('.post-content');
       if (!postContent) return;
 
-      const html = postContent.innerHTML;
-      // Shortcodes can appear inside <p> tags — we need to replace the whole <p>
-      const singleRe = /\[affiliate:([a-z0-9_-]+)\]/gi;
-      const compareRe = /\[affiliate-compare:([a-z0-9_,\s-]+)\]/gi;
+      // Extrai slug de variados formatos: [produto:slug], [produto id="slug"], [product:slug], [affiliate:slug]
+      function extractSlug(text: string): string | null {
+        const trimmed = text.trim();
+        const matchCol = trimmed.match(/^\[(?:produto|product|affiliate):([a-z0-9_-]+)\]$/i);
+        if (matchCol) return matchCol[1];
+        const matchAttr = trimmed.match(/^\[(?:produto|product|affiliate)\s+id=["']?([a-z0-9_-]+)["']?\]$/i);
+        if (matchAttr) return matchAttr[1];
+        return null;
+      }
 
       // Collect all paragraphs and scan them
       const paragraphs = Array.from(postContent.querySelectorAll('p'));
       let foundAny = false;
 
       paragraphs.forEach(p => {
-        const text = p.textContent || '';
+        const text = (p.textContent || '').trim();
 
-        const singleMatch = text.match(/^\[affiliate:([a-z0-9_-]+)\]$/i);
-        if (singleMatch) {
-          const product = productMap[singleMatch[1]];
-          if (product) {
-            const box = buildProductBox(product);
-            p.replaceWith(box);
-            foundAny = true;
-            return;
-          }
+        const slug = extractSlug(text);
+        if (slug && productMap[slug]) {
+          const box = buildProductBox(productMap[slug]);
+          p.replaceWith(box);
+          foundAny = true;
+          return;
         }
 
-        const compareMatch = text.match(/^\[affiliate-compare:([a-z0-9_,\s-]+)\]$/i);
+        const compareMatch = text.match(/^\[(?:produto-compare|affiliate-compare):([a-z0-9_,\s-]+)\]$/i);
         if (compareMatch) {
           const slugs = compareMatch[1].split(',').map((s: string) => s.trim()).filter(Boolean);
           const grid = buildCompareCards(slugs);
@@ -618,22 +623,17 @@ const activeProducts = products.filter((p: any) => p.enabled !== false);
         }
       });
 
-      // Also handle shortcodes not wrapped in <p> (raw text nodes)
-      // by scanning innerHTML as fallback
+      // Fallback para shortcodes brutos no HTML
       if (!foundAny) {
         const newHtml = postContent.innerHTML
-          .replace(/\[affiliate-compare:([a-z0-9_,\s-]+)\]/gi, (_: string, slugs: string) => {
-            const grid = buildCompareCards(slugs.split(','));
-            return grid.outerHTML;
-          })
-          .replace(/\[affiliate:([a-z0-9_-]+)\]/gi, (_: string, slug: string) => {
+          .replace(/\[(?:produto|product|affiliate)(?::|\s+id=["']?)([a-z0-9_-]+)["']?\]/gi, (_: string, slug: string) => {
             const p = productMap[slug];
             if (!p) return _;
+            foundAny = true;
             return buildProductBox(p).outerHTML;
           });
         if (newHtml !== postContent.innerHTML) {
           postContent.innerHTML = newHtml;
-          foundAny = true;
         }
       }
 

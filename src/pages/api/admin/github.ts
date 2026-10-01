@@ -2,11 +2,12 @@ import type { APIRoute } from 'astro';
 import fs from 'node:fs/promises';
 import nodePath from 'node:path';
 import { fileURLToPath } from 'node:url';
+import process from 'node:process';
 
 export const prerender = false;
 
-// Raiz do projeto (sobe de src/pages/api/admin/ → projeto)
-const PROJECT_ROOT = nodePath.resolve(fileURLToPath(import.meta.url), '../../../../../');
+// Raiz do projeto
+const PROJECT_ROOT = process.cwd();
 
 // ── Cache de leituras (evita rate limit do GitHub API: 5000/hora) ────────
 const readCache = new Map<string, { data: any; ts: number }>();
